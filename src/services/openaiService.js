@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+﻿import OpenAI from "openai";
 import { getKnowledge } from "./knowledgeService";
 import { createActivityLog } from "./activityService";
 
@@ -22,12 +22,11 @@ Tags: ${(item.tags || []).join(", ")}
 
 function estimateCost(model, inputTokens, outputTokens) {
   const rates = {
-    "gpt-5.5": { input: 0.00125, output: 0.01 },
-    "gpt-5.4": { input: 0.00125, output: 0.01 },
-    "gpt-5.4-mini": { input: 0.00015, output: 0.0006 }
+    "gpt-5.1": { input: 0.00125, output: 0.01 },
+    "gpt-4.1-mini": { input: 0.00015, output: 0.0006 }
   };
 
-  const rate = rates[model] || rates["gpt-5.5"];
+  const rate = rates[model] || rates["gpt-4.1-mini"];
 
   return ((inputTokens / 1000) * rate.input) + ((outputTokens / 1000) * rate.output);
 }
@@ -35,26 +34,41 @@ function estimateCost(model, inputTokens, outputTokens) {
 export async function runAgent(agent, prompt) {
   const knowledge = await getKnowledge();
 
-  const systemPrompt = `
+  const defaultSystemPrompt = `
 You are ${agent.name}.
 
 Role:
 ${agent.role || "AI Assistant"}
 
-Knowledge Base:
-${formatKnowledge(knowledge)}
-
 Instructions:
-Use the knowledge base whenever relevant.
+Use the knowledge base and memory whenever relevant.
+Be practical, direct, and execution-focused.
 `;
 
-  const model = "gpt-5.1";
+  const systemPrompt = agent.system_prompt || defaultSystemPrompt;
+
+  const knowledgePrompt = `
+Knowledge Base:
+${formatKnowledge(knowledge)}
+`;
+
+  const model = "gpt-4.1-mini";
 
   const response = await client.responses.create({
     model,
     input: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: prompt }
+      {
+        role: "system",
+        content: systemPrompt
+      },
+      {
+        role: "system",
+        content: knowledgePrompt
+      },
+      {
+        role: "user",
+        content: prompt
+      }
     ]
   });
 

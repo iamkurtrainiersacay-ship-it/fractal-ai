@@ -415,3 +415,41 @@ nav {
 .danger-btn:hover {
   background: #b91c1c;
 }
+.workflow-input {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.workflow-output-panel {
+  min-height: 520px;
+}
+
+.workflow-output {
+  width: 100%;
+  min-height: 460px;
+  max-height: 900px;
+  overflow-y: auto;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 24px;
+  color: #e5e7eb;
+  white-space: pre-wrap;
+  text-align: left;
+  line-height: 1.7;
+  font-size: 14px;
+}
+.system-prompt-box {
+  margin-top: 14px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.system-prompt-box pre {
+  white-space: pre-wrap;
+  color: #cbd5e1;
+  margin-top: 8px;
+  line-height: 1.6;
+}

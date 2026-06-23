@@ -5,6 +5,11 @@ import {
   getKnowledgeForAgent,
   buildKnowledgeContext
 } from "../services/knowledgeService";
+import {
+  getAgentMemory,
+  createAgentMemory,
+  buildMemoryContext
+} from "../services/agentMemoryService";
 
 export default function AgentRunner() {
   const [agents, setAgents] = useState([]);
@@ -34,11 +39,14 @@ export default function AgentRunner() {
       return;
     }
 
-    setResponse("Running agent with knowledge...");
+    setResponse("Running agent with knowledge and memory...");
 
     try {
       const knowledgeItems = await getKnowledgeForAgent(selectedAgent);
       const knowledgeContext = buildKnowledgeContext(knowledgeItems);
+
+      const memoryItems = await getAgentMemory(selectedAgent.id);
+      const memoryContext = buildMemoryContext(memoryItems);
 
       const enhancedPrompt = `
 AGENT:
@@ -50,12 +58,21 @@ ${selectedAgent.role || ""}
 KNOWLEDGE BASE:
 ${knowledgeContext}
 
+AGENT MEMORY:
+${memoryContext}
+
 USER REQUEST:
 ${prompt}
 `;
 
       const result = await runAgent(selectedAgent, enhancedPrompt);
       setResponse(result.output);
+
+      await createAgentMemory({
+        agent_id: selectedAgent.id,
+        memory: `User asked: ${prompt}\nAgent responded: ${result.output.substring(0, 1000)}`,
+        source: "agent_run"
+      });
     } catch (error) {
       console.error(error);
       setResponse("Agent run failed. Check browser console.");
