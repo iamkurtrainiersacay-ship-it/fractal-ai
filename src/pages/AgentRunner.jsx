@@ -1,81 +1,71 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { getAgents } from "../services/agentService";
 import { runAgent } from "../services/openaiService";
-import {
-  getKnowledgeForAgent,
-  buildKnowledgeContext
-} from "../services/knowledgeService";
-import {
-  getAgentMemory,
-  createAgentMemory,
-  buildMemoryContext
-} from "../services/agentMemoryService";
 
 export default function AgentRunner() {
   const [agents, setAgents] = useState([]);
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [running, setRunning] = useState(false);
+  const bottomRef = useRef(null);
 
   async function loadAgents() {
     const data = await getAgents();
     setAgents(data || []);
 
-    if (data && data.length > 0) {
+    if (data?.length && !selectedAgentId) {
       setSelectedAgentId(data[0].id);
     }
   }
 
-  async function handleRunAgent() {
-    const selectedAgent = agents.find((item) => item.id === selectedAgentId);
+  async function sendMessage() {
+    if (!prompt.trim()) return;
 
-    if (!selectedAgent) {
+    const agent = agents.find((item) => item.id === selectedAgentId);
+    if (!agent) {
       alert("Select an agent first.");
       return;
     }
 
-    if (!prompt) {
-      alert("Enter a prompt.");
-      return;
-    }
+    const userMessage = {
+      role: "user",
+      content: prompt
+    };
 
-    setResponse("Running agent with knowledge and memory...");
+    setMessages((prev) => [...prev, userMessage]);
+    setPrompt("");
+    setRunning(true);
 
     try {
-      const knowledgeItems = await getKnowledgeForAgent(selectedAgent);
-      const knowledgeContext = buildKnowledgeContext(knowledgeItems);
+      const result = await runAgent(agent, prompt);
 
-      const memoryItems = await getAgentMemory(selectedAgent.id);
-      const memoryContext = buildMemoryContext(memoryItems);
-
-      const enhancedPrompt = `
-AGENT:
-${selectedAgent.name}
-
-ROLE:
-${selectedAgent.role || ""}
-
-KNOWLEDGE BASE:
-${knowledgeContext}
-
-AGENT MEMORY:
-${memoryContext}
-
-USER REQUEST:
-${prompt}
-`;
-
-      const result = await runAgent(selectedAgent, enhancedPrompt);
-      setResponse(result.output);
-
-      await createAgentMemory({
-        agent_id: selectedAgent.id,
-        memory: `User asked: ${prompt}\nAgent responded: ${result.output.substring(0, 1000)}`,
-        source: "agent_run"
-      });
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: result.output
+        }
+      ]);
     } catch (error) {
       console.error(error);
-      setResponse("Agent run failed. Check browser console.");
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Agent failed. Check browser console."
+        }
+      ]);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   }
 
@@ -83,44 +73,118 @@ ${prompt}
     loadAgents();
   }, []);
 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, running]);
+
+  const selectedAgent = agents.find((item) => item.id === selectedAgentId);
+
   return (
-    <div className="page">
-      <h1>Run Agent</h1>
-      <p className="muted">Select an agent, send a prompt, and view the result.</p>
+    <div className="chat-page">
+      <div className="chat-hero">
+        <div>
+          <p className="eyebrow">Command Center</p>
+          <h1>Fractal Chat</h1>
+          <p className="muted">
+            Talk to your agents in a focused, session-based workspace.
+          </p>
+        </div>
 
-      <div className="panel">
-        <h3>Agent Runner</h3>
+        <div className="agent-pill">
+          <span>Active Agent</span>
+          <strong>{selectedAgent?.name || "None"}</strong>
+        </div>
+      </div>
 
-        <div className="form-grid">
+      <div className="chat-shell">
+        <div className="chat-sidebar">
+          <h3>Agent</h3>
+
           <select
             value={selectedAgentId}
             onChange={(e) => setSelectedAgentId(e.target.value)}
           >
             {agents.map((agent) => (
               <option key={agent.id} value={agent.id}>
-                {agent.name} - {agent.model}
+                {agent.name} · {agent.model}
               </option>
             ))}
           </select>
 
-          <textarea
-            rows="6"
-            placeholder="Enter prompt for this agent..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
+          {selectedAgent && (
+            <div className="agent-context-card">
+              <h4>{selectedAgent.name}</h4>
+              <p>{selectedAgent.role}</p>
+              <small>
+                Temporary chat memory. Clears when this window closes.
+              </small>
+            </div>
+          )}
 
-          <button className="primary-btn" onClick={handleRunAgent}>
-            Run Agent
+          <button
+            className="secondary-btn full-width"
+            onClick={() => setMessages([])}
+          >
+            Clear Chat
           </button>
         </div>
-      </div>
 
-      <div className="panel">
-        <h3>Response</h3>
-        <pre style={{ whiteSpace: "pre-wrap" }}>
-          {response || "No response yet."}
-        </pre>
+        <div className="chat-main">
+          <div className="chat-messages">
+            {messages.length === 0 ? (
+              <div className="empty-chat">
+                <div className="fractal-orb">✦</div>
+                <h2>Start a conversation</h2>
+                <p>
+                  Ask Fractal to plan, reason, write, research, or execute through an agent.
+                </p>
+              </div>
+            ) : (
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`chat-message ${message.role}`}
+                >
+                  <div className="message-avatar">
+                    {message.role === "user" ? "You" : "AI"}
+                  </div>
+
+                  <div className="message-bubble">
+                    {message.content}
+                  </div>
+                </div>
+              ))
+            )}
+
+            {running && (
+              <div className="chat-message assistant">
+                <div className="message-avatar">AI</div>
+                <div className="message-bubble typing">
+                  Thinking...
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
+
+          <div className="chat-input-bar">
+            <textarea
+              placeholder="Message Fractal..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+
+            <button
+              className="send-btn"
+              onClick={sendMessage}
+              disabled={running}
+            >
+              ↑
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
