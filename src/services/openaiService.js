@@ -1,97 +1,24 @@
-﻿import OpenAI from "openai";
-import { getKnowledge } from "./knowledgeService";
-import { createActivityLog } from "./activityService";
-
-const client = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
-
-function formatKnowledge(items) {
-  return (items || [])
-    .map(
-      (item) => `
-Title: ${item.title}
-Type: ${item.type}
-Content: ${item.content}
-Tags: ${(item.tags || []).join(", ")}
-`
-    )
-    .join("\n\n");
-}
-
-function estimateCost(model, inputTokens, outputTokens) {
-  const rates = {
-    "gpt-5.1": { input: 0.00125, output: 0.01 },
-    "gpt-4.1-mini": { input: 0.00015, output: 0.0006 }
-  };
-
-  const rate = rates[model] || rates["gpt-4.1-mini"];
-
-  return ((inputTokens / 1000) * rate.input) + ((outputTokens / 1000) * rate.output);
-}
+﻿import { createActivityLog } from "./activityService";
 
 export async function runAgent(agent, prompt) {
-  const knowledge = await getKnowledge();
+  const output = `OpenAI execution is disabled in the public WordPress build.
 
-  const defaultSystemPrompt = `
-You are ${agent.name}.
+Agent: ${agent.name}
 
-Role:
-${agent.role || "AI Assistant"}
+Prompt received:
+${prompt}
 
-Instructions:
-Use the knowledge base and memory whenever relevant.
-Be practical, direct, and execution-focused.
-`;
-
-  const systemPrompt = agent.system_prompt || defaultSystemPrompt;
-
-  const knowledgePrompt = `
-Knowledge Base:
-${formatKnowledge(knowledge)}
-`;
-
-  const model = "gpt-4.1-mini";
-
-  const response = await client.responses.create({
-    model,
-    input: [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      {
-        role: "system",
-        content: knowledgePrompt
-      },
-      {
-        role: "user",
-        content: prompt
-      }
-    ]
-  });
-
-  const output = response.output_text || "No response returned.";
-
-  const inputTokens = response.usage?.input_tokens || 0;
-  const outputTokens = response.usage?.output_tokens || 0;
-  const totalTokens = response.usage?.total_tokens || inputTokens + outputTokens;
-  const estimatedCost = estimateCost(model, inputTokens, outputTokens);
+Next step:
+Move OpenAI calls to a secure backend endpoint, Supabase Edge Function, or WordPress REST API proxy.`;
 
   await createActivityLog({
-    action: "agent_run",
+    action: "agent_run_disabled_public",
     entity_type: "agent",
     entity_id: agent.id,
     metadata: {
       agent_name: agent.name,
-      model,
       prompt,
-      response: output,
-      input_tokens: inputTokens,
-      output_tokens: outputTokens,
-      total_tokens: totalTokens,
-      estimated_cost: estimatedCost
+      response: output
     }
   });
 
