@@ -11,6 +11,7 @@ import Integrations from "./pages/Integrations";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AgentRunner from "./pages/AgentRunner";
+import SocialDistribution from "./pages/SocialDistribution";
 import Auth from "./pages/Auth";
 
 import { getSession } from "./services/authService";
@@ -34,6 +35,7 @@ function ProtectedLayout() {
           <Route path="/workflows" element={<Workflows />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/knowledge" element={<Knowledge />} />
+          <Route path="/social-distribution" element={<SocialDistribution />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />

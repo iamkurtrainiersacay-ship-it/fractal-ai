@@ -1,5 +1,16 @@
 import { NavLink } from "react-router-dom";
-import { Home, Bot, Workflow, FolderKanban, Brain, Plug, BarChart3, Settings, Sparkles } from "lucide-react";
+import {
+  Home,
+  Bot,
+  Workflow,
+  FolderKanban,
+  Brain,
+  Plug,
+  BarChart3,
+  Settings,
+  Sparkles,
+  Share2
+} from "lucide-react";
 
 const nav = [
   { name: "Dashboard", path: "/", icon: Home },
@@ -7,10 +18,11 @@ const nav = [
   { name: "Workflows", path: "/workflows", icon: Workflow },
   { name: "Projects", path: "/projects", icon: FolderKanban },
   { name: "Knowledge", path: "/knowledge", icon: Brain },
+  { name: "Social Distribution", path: "/social-distribution", icon: Share2 },
   { name: "Integrations", path: "/integrations", icon: Plug },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Settings", path: "/settings", icon: Settings },
-   { name: "Run Agent", path: "/run-agent", icon: Sparkles }
+  { name: "Run Agent", path: "/run-agent", icon: Sparkles }
 ];
 
 export default function Sidebar() {
@@ -28,7 +40,13 @@ export default function Sidebar() {
         {nav.map((item) => {
           const Icon = item.icon;
           return (
-            <NavLink key={item.name} to={item.path} className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <NavLink
+              key={item.name}
+              to={item.path}
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
               <Icon size={18} />
               <span>{item.name}</span>
             </NavLink>
