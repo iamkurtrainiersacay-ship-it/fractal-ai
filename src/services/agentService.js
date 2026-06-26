@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+﻿import { supabase } from "../core/database/supabase";
 
 export async function getAgents() {
   const { data, error } = await supabase

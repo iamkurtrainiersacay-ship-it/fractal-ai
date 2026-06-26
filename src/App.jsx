@@ -1,20 +1,28 @@
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
+﻿import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
-import Dashboard from "./pages/Dashboard";
-import Agents from "./pages/Agents";
-import Workflows from "./pages/Workflows";
-import Projects from "./pages/Projects";
-import Knowledge from "./pages/Knowledge";
-import Integrations from "./pages/Integrations";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import AgentRunner from "./pages/AgentRunner";
-import SocialDistribution from "./pages/SocialDistribution";
+import Sidebar from "./shared/components/Sidebar";
+import Topbar from "./shared/components/Topbar";
+import CommandCenter from "./shared/components/CommandCenter";
+
+import Dashboard from "./apps/dashboard/pages/Dashboard";
+import Agents from "./apps/agents/pages/Agents";
+import Workflows from "./apps/workflows/pages/Workflows";
+import Projects from "./apps/projects/pages/Projects";
+import Knowledge from "./apps/knowledge/pages/Knowledge";
+import SocialDistribution from "./apps/social/pages/SocialDistribution";
+import Integrations from "./apps/integrations/pages/Integrations";
+import Analytics from "./apps/analytics/pages/Analytics";
+import Settings from "./apps/settings/pages/Settings";
+import AgentRunner from "./apps/agents/pages/AgentRunner";
+import MultiAgentWorkspace from "./apps/agents/pages/MultiAgentWorkspace";
+import AgentMarketplace from "./apps/agents/pages/AgentMarketplace";
+import Applications from "./pages/Applications";
+import Workspace from "./apps/workspace/pages/Workspace";
 import Auth from "./pages/Auth";
 
 import { getSession } from "./services/authService";
+import { WorkspaceProvider } from "./core/workspace/WorkspaceContext";
 import "./App.css";
 
 function ProtectedLayout() {
@@ -31,6 +39,8 @@ function ProtectedLayout() {
         <Topbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/applications" element={<Applications />} />
+          <Route path="/workspace" element={<Workspace />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/workflows" element={<Workflows />} />
           <Route path="/projects" element={<Projects />} />
@@ -40,6 +50,9 @@ function ProtectedLayout() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/run-agent" element={<AgentRunner />} />
+          <Route path="/multi-agent" element={<MultiAgentWorkspace />} />
+          <Route path="/agents" element={<Agents />} />
+          <Route path="/marketplace" element={<AgentMarketplace />} />
         </Routes>
       </main>
     </div>
@@ -48,11 +61,15 @@ function ProtectedLayout() {
 
 export default function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/*" element={<ProtectedLayout />} />
-      </Routes>
-    </HashRouter>
+    <WorkspaceProvider>
+      <HashRouter>
+        <Toaster position="top-right" />
+        <CommandCenter />
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/*" element={<ProtectedLayout />} />
+        </Routes>
+      </HashRouter>
+    </WorkspaceProvider>
   );
 }

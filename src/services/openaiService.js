@@ -1,10 +1,10 @@
-﻿import { supabase } from "../lib/supabase";
+﻿import { supabase } from "../core/database/supabase";
 import { getKnowledge } from "./knowledgeService";
 import { createActivityLog } from "./activityService";
 import {
   getAgentConversations,
   saveAgentConversation
-} from "./conversationService";
+} from "../apps/agents/services/conversationService";
 
 function formatKnowledge(items) {
   return (items || [])

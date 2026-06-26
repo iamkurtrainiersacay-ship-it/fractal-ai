@@ -1,4 +1,4 @@
-﻿import { supabase } from "../lib/supabase";
+import { supabase } from "../core/database/supabase";
 
 export async function getWorkspaces() {
   const { data, error } = await supabase
@@ -8,6 +8,38 @@ export async function getWorkspaces() {
 
   if (error) throw error;
   return data || [];
+}
+
+export async function createWorkspace(workspace) {
+  const { data, error } = await supabase
+    .from("workspaces")
+    .insert([workspace])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateWorkspace(id, updates) {
+  const { data, error } = await supabase
+    .from("workspaces")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteWorkspace(id) {
+  const { error } = await supabase
+    .from("workspaces")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
 }
 
 export async function getClients(workspaceId) {

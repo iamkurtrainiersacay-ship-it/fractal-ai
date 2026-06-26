@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import { useState } from "react";
+import { Lock, User, ArrowRight, Sparkles } from "lucide-react";
 import {
   loginUser,
   registerUser,
@@ -10,10 +11,12 @@ export default function Auth() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("admin123");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMessage("Processing...");
+    setLoading(true);
+    setMessage("");
 
     try {
       const result =
@@ -23,58 +26,102 @@ export default function Auth() {
 
       if (!result.success) {
         setMessage(result.message || "Request failed.");
+        setLoading(false);
         return;
       }
 
       saveSession(result);
-      setMessage("Success. Redirecting...");
-      window.location.href = "/";
+      setMessage("Authenticated. Launching Fractal...");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 600);
     } catch (error) {
       console.error(error);
-      setMessage("Auth failed. Check console.");
+      setMessage("Authentication failed. Check console.");
+      setLoading(false);
     }
   }
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h1>Fractal AI</h1>
-        <p className="muted">
-          {mode === "login" ? "Login to continue." : "Create a new account."}
-        </p>
+      <div className="auth-bg-grid" />
 
-        <form onSubmit={handleSubmit} className="form-grid">
-          <input
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+      <div className="auth-container">
+        <div className="auth-brand">
+          <div className="auth-orb">
+            <Sparkles size={28} />
+          </div>
+          <h1 className="auth-title">Fractal AI</h1>
+          <p className="auth-subtitle">AI Operating System</p>
+        </div>
 
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <h2>{mode === "login" ? "Welcome back" : "Create account"}</h2>
+            <p>{mode === "login" ? "Sign in to your workspace" : "Set up your Fractal identity"}</p>
+          </div>
 
-          <button className="primary-btn" type="submit">
-            {mode === "login" ? "Login" : "Register"}
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="auth-field">
+              <label>Username</label>
+              <div className="auth-input-wrap">
+                <User size={16} />
+                <input
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label>Password</label>
+              <div className="auth-input-wrap">
+                <Lock size={16} />
+                <input
+                  placeholder="Enter password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+
+            <button className="auth-submit" type="submit" disabled={loading}>
+              <span>{loading ? "Authenticating..." : mode === "login" ? "Sign In" : "Create Account"}</span>
+              {!loading && <ArrowRight size={16} />}
+              {loading && <div className="auth-spinner" />}
+            </button>
+          </form>
+
+          {message && (
+            <div className={message.includes("failed") ? "auth-message error" : "auth-message success"}>
+              {message}
+            </div>
+          )}
+
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
+
+          <button
+            className="auth-switch"
+            onClick={() => {
+              setMode(mode === "login" ? "register" : "login");
+              setMessage("");
+            }}
+          >
+            {mode === "login"
+              ? "Don’t have an account? Create one"
+              : "Already have an account? Sign in"}
           </button>
-        </form>
+        </div>
 
-        <button
-          className="secondary-btn"
-          onClick={() => {
-            setMode(mode === "login" ? "register" : "login");
-            setMessage("");
-          }}
-        >
-          {mode === "login"
-            ? "Need an account? Register"
-            : "Already have an account? Login"}
-        </button>
-
-        {message && <p>{message}</p>}
+        <p className="auth-footer">
+          Secured by Supabase &middot; End-to-end encrypted
+        </p>
       </div>
     </div>
   );
