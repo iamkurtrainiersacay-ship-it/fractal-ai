@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -5,6 +6,7 @@ import Sidebar from "./shared/components/Sidebar";
 import Topbar from "./shared/components/Topbar";
 import CommandCenter from "./shared/components/CommandCenter";
 import ErrorBoundary from "./shared/components/ErrorBoundary";
+import Onboarding from "./shared/components/Onboarding";
 
 import Dashboard from "./apps/dashboard/pages/Dashboard";
 import Agents from "./apps/agents/pages/Agents";
@@ -27,39 +29,52 @@ import { getSession } from "./services/authService";
 import { WorkspaceProvider } from "./core/workspace/WorkspaceContext";
 import "./App.css";
 
+const ONBOARDING_KEY = "fractal_onboarding_complete";
+
 function ProtectedLayout() {
   const user = getSession();
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem(ONBOARDING_KEY);
+  });
 
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
+  function completeOnboarding() {
+    localStorage.setItem(ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  }
+
   return (
-    <div className="app">
-      <Sidebar />
-      <main className="main">
-        <Topbar />
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/applications" element={<Applications />} />
-            <Route path="/workspace" element={<Workspace />} />
-            <Route path="/agents" element={<Agents />} />
-            <Route path="/workflows" element={<Workflows />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/knowledge" element={<Knowledge />} />
-            <Route path="/social-distribution" element={<SocialDistribution />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/run-agent" element={<AgentRunner />} />
-            <Route path="/multi-agent" element={<MultiAgentWorkspace />} />
-            <Route path="/marketplace" element={<AgentMarketplace />} />
-            <Route path="/content-assets" element={<ContentAssets />} />
-          </Routes>
-        </ErrorBoundary>
-      </main>
-    </div>
+    <>
+      {showOnboarding && <Onboarding onComplete={completeOnboarding} />}
+      <div className="app">
+        <Sidebar />
+        <main className="main">
+          <Topbar />
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/workspace" element={<Workspace />} />
+              <Route path="/agents" element={<Agents />} />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/knowledge" element={<Knowledge />} />
+              <Route path="/social-distribution" element={<SocialDistribution />} />
+              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/run-agent" element={<AgentRunner />} />
+              <Route path="/multi-agent" element={<MultiAgentWorkspace />} />
+              <Route path="/marketplace" element={<AgentMarketplace />} />
+              <Route path="/content-assets" element={<ContentAssets />} />
+            </Routes>
+          </ErrorBoundary>
+        </main>
+      </div>
+    </>
   );
 }
 
