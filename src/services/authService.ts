@@ -5,9 +5,10 @@ const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface FractalSession {
   success?: boolean;
-  user?: { id: string; username: string };
+  user?: { id: string; username: string; is_super_admin?: boolean };
   username?: string;
   id?: string;
+  is_super_admin?: boolean;
   _issued_at?: number;
   _expires_at?: number;
   [key: string]: unknown;
@@ -20,7 +21,26 @@ export async function loginUser(username: string, password: string): Promise<Fra
   });
 
   if (error) throw error;
-  return data as FractalSession;
+
+  const session = data as FractalSession;
+
+  const userId = session?.user?.id || session?.id;
+  if (userId) {
+    const { data: userRow } = await supabase
+      .from("app_users")
+      .select("is_super_admin")
+      .eq("id", userId)
+      .single();
+
+    if (userRow) {
+      if (session.user) {
+        session.user.is_super_admin = userRow.is_super_admin || false;
+      }
+      session.is_super_admin = userRow.is_super_admin || false;
+    }
+  }
+
+  return session;
 }
 
 export async function registerUser(username: string, password: string): Promise<FractalSession> {
