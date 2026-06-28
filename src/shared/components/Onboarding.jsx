@@ -1,198 +1,313 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Sparkles,
-  LayoutGrid,
-  Bot,
-  Share2,
-  Brain,
-  BarChart3,
-  Workflow,
-  Layers,
-  Plug,
-  Settings,
   ArrowRight,
-  ArrowLeft,
   X,
-  Rocket
+  Rocket,
+  MousePointerClick
 } from "lucide-react";
 
 const STEPS = [
   {
-    icon: Sparkles,
-    color: "#8b5cf6",
     title: "Welcome to Fractal AI",
-    subtitle: "Your AI Operating System",
-    description:
-      "Fractal AI is your central command for managing AI agents, automating workflows, distributing content, and running your entire AI-powered operation from one place.",
-    tip: "Let's take a quick tour of what you can do."
+    description: "Let's walk through your AI Operating System together. You'll interact with real features as we go.",
+    target: null,
+    action: "click-next",
+    position: "center"
   },
   {
-    icon: LayoutGrid,
-    color: "#8b5cf6",
-    title: "Mission Control",
-    subtitle: "Dashboard",
-    description:
-      "Your dashboard gives you a bird's-eye view of the entire platform — active agents, system health, recent activity, and quick shortcuts to every module.",
-    tip: "This is your home base. You'll land here every time you log in."
+    title: "This is your Dashboard",
+    description: "Mission Control gives you a bird's-eye view of everything — agents, health, and shortcuts. Click anywhere on the Dashboard to continue.",
+    target: ".mission-hero",
+    action: "click-target",
+    position: "bottom",
+    route: "/"
   },
   {
-    icon: Bot,
-    color: "#6366f1",
-    title: "AI Agents",
-    subtitle: "Your AI Team",
-    description:
-      "Create, configure, and run specialized AI agents. Each agent has its own system prompt, memory, and knowledge context. Run them solo or collaborate with multiple agents on a single task.",
-    tip: "Head to the Marketplace to install pre-built agents like Sales, Marketing, or Research agents."
+    title: "Open Applications",
+    description: "Click 'Applications' in the sidebar to see all your available modules.",
+    target: "a[href='#/applications']",
+    action: "click-target",
+    position: "right",
+    route: null
   },
   {
-    icon: Share2,
-    color: "#38bdf8",
-    title: "Social Distribution",
-    subtitle: "Content Operations",
-    description:
-      "Review, edit, and schedule AI-generated social media posts across platforms. Create content assets that trigger AI generation via Make.com, then approve and publish from one queue.",
-    tip: "Posts sync every 30 seconds. Use Ctrl+S to quick-save edits."
+    title: "Your App Launcher",
+    description: "This is where you launch every module — Social Distribution, Agents, Knowledge, and more. Click any app card to explore.",
+    target: ".apps-grid",
+    action: "click-next",
+    position: "top",
+    route: "/applications"
   },
   {
-    icon: Brain,
-    color: "#10b981",
+    title: "Meet your AI Agents",
+    description: "Click 'AI Agents' in the sidebar to see your agent workspace.",
+    target: "a[href='#/multi-agent']",
+    action: "click-target",
+    position: "right"
+  },
+  {
+    title: "Multi-Agent Workspace",
+    description: "Here you can select multiple AI agents and run them together on a shared task. Each agent sees the previous agent's output.",
+    target: ".multi-agent-panel",
+    action: "click-next",
+    position: "bottom",
+    route: "/multi-agent"
+  },
+  {
+    title: "Try the Workspace Switcher",
+    description: "Click the workspace dropdown in the sidebar to switch between different projects or clients.",
+    target: ".ws-switcher-btn",
+    action: "click-target",
+    position: "right"
+  },
+  {
+    title: "Workspace Switcher",
+    description: "You can create separate workspaces for different operations. Close this dropdown and let's continue.",
+    target: ".ws-switcher",
+    action: "click-next",
+    position: "right"
+  },
+  {
+    title: "Open Knowledge Base",
+    description: "Click 'Knowledge' in the sidebar — this is your AI memory system.",
+    target: "a[href='#/knowledge']",
+    action: "click-target",
+    position: "right"
+  },
+  {
     title: "Knowledge Base",
-    subtitle: "AI Memory System",
-    description:
-      "Store SOPs, prompts, client data, research, and workflows. Knowledge is automatically injected into agent prompts — assign items to specific agents or keep them global.",
-    tip: "The more knowledge you add, the smarter your agents become."
+    description: "Store SOPs, prompts, client data, and research here. Everything you add is automatically injected into your agents' context.",
+    target: ".page-header",
+    action: "click-next",
+    position: "bottom",
+    route: "/knowledge"
   },
   {
-    icon: Workflow,
-    color: "#a855f7",
-    title: "Workflows",
-    subtitle: "Automation Engine",
-    description:
-      "Build multi-step workflows that chain agents together. Each step passes its output to the next — perfect for research-to-report pipelines or content generation flows.",
-    tip: "Create a workflow, add steps with assigned agents, then run it with a single input."
+    title: "Try Command Center",
+    description: "Press Ctrl+K (or Cmd+K on Mac) to open the spotlight search — it lets you jump to any page instantly.",
+    target: null,
+    action: "keyboard",
+    key: "k",
+    position: "center"
   },
   {
-    icon: Layers,
-    color: "#06b6d4",
-    title: "Workspaces",
-    subtitle: "Organize Everything",
-    description:
-      "Workspaces let you separate different projects, clients, or departments. Switch between workspaces from the sidebar — each one has its own context and data.",
-    tip: "Use the workspace switcher in the sidebar to manage multiple operations."
+    title: "Check out Analytics",
+    description: "Click 'Analytics' in the sidebar to see your usage data and charts.",
+    target: "a[href='#/analytics']",
+    action: "click-target",
+    position: "right"
   },
   {
-    icon: BarChart3,
-    color: "#f59e0b",
-    title: "Analytics",
-    subtitle: "Track Performance",
-    description:
-      "Monitor agent runs, token usage, costs, and performance over time with interactive charts. See which agents are most active and track your AI spending.",
-    tip: "Charts update automatically as you run more agents."
+    title: "Analytics Dashboard",
+    description: "Track agent runs, token usage, costs over time, and see which agents are most active — all with real-time charts.",
+    target: ".analytics-summary",
+    action: "click-next",
+    position: "bottom",
+    route: "/analytics"
   },
   {
-    icon: Plug,
-    color: "#ef4444",
-    title: "Integrations",
-    subtitle: "Connect Services",
-    description:
-      "Connect external services like OpenAI, Supabase, Gmail, WordPress, Make.com, Zoho, Discord, and Claude. Store API keys securely and manage connections from one place.",
-    tip: "Your Supabase and Make.com connections power the core platform."
-  },
-  {
-    icon: Settings,
-    color: "#71717a",
-    title: "Settings",
-    subtitle: "Configure Your Platform",
-    description:
-      "Manage workspaces, view system status, and configure platform settings. Create new workspaces, edit existing ones, or check backend infrastructure health.",
-    tip: "You can create unlimited workspaces for different projects or clients."
-  },
-  {
-    icon: Rocket,
-    color: "#8b5cf6",
-    title: "You're All Set!",
-    subtitle: "Start Building",
-    description:
-      "You now know everything you need to get started. Explore the platform, install some agents from the Marketplace, add knowledge, and start running your AI operations.",
-    tip: "You can revisit this guide anytime from Settings."
+    title: "You're all set!",
+    description: "You've explored the core of Fractal AI. Go build something amazing — install agents from the Marketplace, create workflows, or start distributing content.",
+    target: null,
+    action: "finish",
+    position: "center"
   }
 ];
 
 export default function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0);
+  const [tooltipStyle, setTooltipStyle] = useState({});
+  const [spotlightStyle, setSpotlightStyle] = useState(null);
+  const navigate = useNavigate();
+
   const current = STEPS[step];
-  const Icon = current.icon;
-  const isLast = step === STEPS.length - 1;
-  const isFirst = step === 0;
   const progress = ((step + 1) / STEPS.length) * 100;
 
-  function next() {
-    if (isLast) {
+  const positionTooltip = useCallback(() => {
+    if (!current.target || current.position === "center") {
+      setTooltipStyle({});
+      setSpotlightStyle(null);
+      return;
+    }
+
+    const el = document.querySelector(current.target);
+    if (!el) {
+      setTooltipStyle({});
+      setSpotlightStyle(null);
+      return;
+    }
+
+    const rect = el.getBoundingClientRect();
+    const pad = 12;
+
+    setSpotlightStyle({
+      top: rect.top - pad,
+      left: rect.left - pad,
+      width: rect.width + pad * 2,
+      height: rect.height + pad * 2,
+      borderRadius: "16px"
+    });
+
+    const pos = current.position;
+    const tooltip = {};
+
+    if (pos === "right") {
+      tooltip.top = rect.top + rect.height / 2;
+      tooltip.left = rect.right + 20;
+      tooltip.transform = "translateY(-50%)";
+    } else if (pos === "bottom") {
+      tooltip.top = rect.bottom + 20;
+      tooltip.left = rect.left + rect.width / 2;
+      tooltip.transform = "translateX(-50%)";
+    } else if (pos === "top") {
+      tooltip.top = rect.top - 20;
+      tooltip.left = rect.left + rect.width / 2;
+      tooltip.transform = "translate(-50%, -100%)";
+    } else if (pos === "left") {
+      tooltip.top = rect.top + rect.height / 2;
+      tooltip.left = rect.left - 20;
+      tooltip.transform = "translate(-100%, -50%)";
+    }
+
+    const maxLeft = window.innerWidth - 380;
+    const maxTop = window.innerHeight - 250;
+    if (tooltip.left > maxLeft) tooltip.left = maxLeft;
+    if (tooltip.top > maxTop) tooltip.top = maxTop;
+    if (tooltip.left < 16) tooltip.left = 16;
+    if (tooltip.top < 16) tooltip.top = 16;
+
+    setTooltipStyle(tooltip);
+  }, [current]);
+
+  useEffect(() => {
+    if (current.route !== undefined && current.route !== null) {
+      navigate(current.route);
+    }
+
+    const timer = setTimeout(positionTooltip, 150);
+    return () => clearTimeout(timer);
+  }, [step, current, navigate, positionTooltip]);
+
+  useEffect(() => {
+    window.addEventListener("resize", positionTooltip);
+    return () => window.removeEventListener("resize", positionTooltip);
+  }, [positionTooltip]);
+
+  useEffect(() => {
+    if (current.action !== "click-target") return;
+
+    function handleClick(e) {
+      const el = document.querySelector(current.target);
+      if (el && (el.contains(e.target) || el === e.target)) {
+        setTimeout(() => advance(), 300);
+      }
+    }
+
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
+  }, [step, current]);
+
+  useEffect(() => {
+    if (current.action !== "keyboard") return;
+
+    function handleKey(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === current.key) {
+        setTimeout(() => advance(), 800);
+      }
+    }
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [step, current]);
+
+  function advance() {
+    if (step >= STEPS.length - 1) {
       onComplete();
     } else {
       setStep(step + 1);
     }
   }
 
-  function prev() {
-    if (step > 0) setStep(step - 1);
-  }
-
   function skip() {
     onComplete();
   }
 
+  const isCenter = !current.target || current.position === "center";
+
   return (
-    <div className="onboarding-overlay">
-      <div className="onboarding-card">
-        <button className="onboarding-skip" onClick={skip} title="Skip guide">
-          <X size={18} />
+    <div className="tour-overlay">
+      {spotlightStyle && (
+        <>
+          <div className="tour-backdrop tour-backdrop-top" style={{
+            top: 0, left: 0, right: 0,
+            height: spotlightStyle.top
+          }} />
+          <div className="tour-backdrop tour-backdrop-bottom" style={{
+            top: spotlightStyle.top + spotlightStyle.height,
+            left: 0, right: 0, bottom: 0
+          }} />
+          <div className="tour-backdrop tour-backdrop-left" style={{
+            top: spotlightStyle.top,
+            left: 0,
+            width: spotlightStyle.left,
+            height: spotlightStyle.height
+          }} />
+          <div className="tour-backdrop tour-backdrop-right" style={{
+            top: spotlightStyle.top,
+            left: spotlightStyle.left + spotlightStyle.width,
+            right: 0,
+            height: spotlightStyle.height
+          }} />
+          <div className="tour-spotlight" style={spotlightStyle} />
+        </>
+      )}
+
+      {!spotlightStyle && <div className="tour-backdrop-full" />}
+
+      <div
+        className={`tour-tooltip ${isCenter ? "tour-tooltip-center" : ""}`}
+        style={isCenter ? {} : tooltipStyle}
+      >
+        <div className="tour-progress">
+          <div className="tour-progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+
+        <button className="tour-skip" onClick={skip} title="Skip tour">
+          <X size={14} />
         </button>
 
-        <div className="onboarding-progress">
-          <div className="onboarding-progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-
-        <div className="onboarding-step-dots">
-          {STEPS.map((_, i) => (
-            <button
-              key={i}
-              className={`onboarding-dot ${i === step ? "active" : ""} ${i < step ? "done" : ""}`}
-              onClick={() => setStep(i)}
-            />
-          ))}
-        </div>
-
-        <div className="onboarding-icon" style={{ background: current.color }}>
-          <Icon size={32} />
-        </div>
-
-        <p className="onboarding-subtitle">{current.subtitle}</p>
-        <h2 className="onboarding-title">{current.title}</h2>
-        <p className="onboarding-desc">{current.description}</p>
-
-        <div className="onboarding-tip">
-          <Sparkles size={14} />
-          <span>{current.tip}</span>
-        </div>
-
-        <div className="onboarding-actions">
-          {!isFirst && (
-            <button className="secondary-btn" onClick={prev}>
-              <ArrowLeft size={14} /> Back
-            </button>
+        <div className="tour-content">
+          {current.action === "click-target" && (
+            <div className="tour-action-badge">
+              <MousePointerClick size={13} />
+              <span>Click to continue</span>
+            </div>
+          )}
+          {current.action === "keyboard" && (
+            <div className="tour-action-badge">
+              <span>Press Ctrl+K</span>
+            </div>
           )}
 
-          <button className="primary-btn" onClick={next} style={{ marginLeft: "auto" }}>
-            {isLast ? "Get Started" : "Next"}
-            {!isLast && <ArrowRight size={14} />}
-            {isLast && <Rocket size={14} />}
-          </button>
-        </div>
+          <h3 className="tour-title">{current.title}</h3>
+          <p className="tour-desc">{current.description}</p>
 
-        <p className="onboarding-counter">
-          {step + 1} of {STEPS.length}
-        </p>
+          <div className="tour-footer">
+            <span className="tour-counter">{step + 1} / {STEPS.length}</span>
+
+            {(current.action === "click-next" || current.action === "finish") && (
+              <button className="primary-btn" onClick={advance}>
+                {current.action === "finish" ? (
+                  <><Rocket size={14} /> Get Started</>
+                ) : (
+                  <><ArrowRight size={14} /> Next</>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
