@@ -1,12 +1,13 @@
-﻿import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { getSession } from "../../../services/authService";
 
 export const socialSupabase = createClient(
-  "https://tgrjnydebfkfqgaqbtdz.supabase.co",
-  "sb_publishable_A2hGUVe41TV5eyCnsjf9dw_MknIFuJR"
+  import.meta.env.VITE_SOCIAL_SUPABASE_URL,
+  import.meta.env.VITE_SOCIAL_SUPABASE_ANON_KEY
 );
 
-const MAKE_GENERATE_WEBHOOK = "https://hook.us2.make.com/x0urnzfbkhpa9pbij2pjc3c2cedbke3r";
-const MAKE_SCHEDULE_WEBHOOK = "https://hook.us2.make.com/pcyf4ux2s2i5wroslltttp15399tfmra";
+const MAKE_GENERATE_WEBHOOK = import.meta.env.VITE_MAKE_GENERATE_WEBHOOK;
+const MAKE_SCHEDULE_WEBHOOK = import.meta.env.VITE_MAKE_SCHEDULE_WEBHOOK;
 const STORAGE_BUCKET = "content-assets";
 
 export async function getGeneratedPosts() {
@@ -117,13 +118,16 @@ export async function createContentAsset(asset, imageFile) {
 }
 
 export async function scheduleAndSendPost(post, asset, scheduledAt, finalBody) {
+  const session = getSession();
+  const username = session?.user?.username || session?.username || "System";
+
   const updated = await updateGeneratedPost(post.id, {
     post_body: finalBody,
     status: "Scheduled",
     approved: true,
     approved_at: new Date().toISOString(),
-    approved_by: "Kurt",
-    scheduled_by: "Kurt",
+    approved_by: username,
+    scheduled_by: username,
     scheduled_at: scheduledAt
   });
 

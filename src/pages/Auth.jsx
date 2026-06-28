@@ -8,8 +8,8 @@ import {
 
 export default function Auth() {
   const [mode, setMode] = useState("login");
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +37,7 @@ export default function Auth() {
       }, 600);
     } catch (error) {
       console.error(error);
-      setMessage("Authentication failed. Check console.");
+      setMessage(error?.message || "Authentication failed. Please try again.");
       setLoading(false);
     }
   }
