@@ -106,7 +106,10 @@ export default function Integrations() {
         .from("integrations")
         .select("*");
 
-      if (error) throw error;
+      if (error) {
+        console.warn("Integrations table not found — create it in Supabase.");
+        return;
+      }
 
       const map = {};
       (data || []).forEach((row) => {

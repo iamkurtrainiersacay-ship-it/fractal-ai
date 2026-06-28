@@ -6,7 +6,10 @@ export async function getUsers() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.warn("Failed to load users:", error.message);
+    return [];
+  }
   return data || [];
 }
 
@@ -32,26 +35,34 @@ export async function toggleSuperAdmin(id, isSuperAdmin) {
 }
 
 export async function updateUserOnlineStatus(userId, isOnline) {
-  const { error } = await supabase
-    .from("app_users")
-    .update({
-      is_online: isOnline,
-      last_seen: new Date().toISOString()
-    })
-    .eq("id", userId);
+  try {
+    const { error } = await supabase
+      .from("app_users")
+      .update({
+        is_online: isOnline,
+        last_seen: new Date().toISOString()
+      })
+      .eq("id", userId);
 
-  if (error) console.error("Online status update error:", error);
+    if (error) console.warn("Online status update skipped:", error.message);
+  } catch {
+    // silently ignore if columns don't exist yet
+  }
 }
 
 export async function logSession(userId, username, action, metadata = {}) {
-  const { error } = await supabase
-    .from("activity_logs")
-    .insert([{
-      action,
-      entity_type: "session",
-      entity_id: userId,
-      metadata: { username, ...metadata }
-    }]);
+  try {
+    const { error } = await supabase
+      .from("activity_logs")
+      .insert([{
+        action,
+        entity_type: "session",
+        entity_id: userId,
+        metadata: { username, ...metadata }
+      }]);
 
-  if (error) console.error("Session log error:", error);
+    if (error) console.warn("Session log skipped:", error.message);
+  } catch {
+    // silently ignore
+  }
 }
