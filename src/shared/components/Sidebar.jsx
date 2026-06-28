@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
+import AskFractal from "./AskFractal";
 
 const nav = [
   { name: "Dashboard", path: "/", icon: Home },
@@ -119,6 +120,8 @@ export default function Sidebar() {
         <h3>Applications Installed</h3>
         <p>6 Active Modules</p>
       </div>
+
+      <AskFractal />
     </aside>
   );
 }
