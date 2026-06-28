@@ -11,7 +11,8 @@ import {
   BarChart3,
   Settings,
   Layers,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
@@ -38,7 +39,7 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isSuperAdmin }) {
   const { workspace, workspaces, switchWorkspace } = useWorkspace();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -114,6 +115,17 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
+        {isSuperAdmin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              isActive ? "nav-item active nav-admin" : "nav-item nav-admin"
+            }
+          >
+            <ShieldCheck size={18} />
+            <span>Super Admin</span>
+          </NavLink>
+        )}
       </nav>
 
       <div className="sidebar-card">

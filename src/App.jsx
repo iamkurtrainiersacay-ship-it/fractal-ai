@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -21,11 +21,13 @@ import AgentRunner from "./apps/agents/pages/AgentRunner";
 import MultiAgentWorkspace from "./apps/agents/pages/MultiAgentWorkspace";
 import AgentMarketplace from "./apps/agents/pages/AgentMarketplace";
 import ContentAssets from "./apps/content/pages/ContentAssets";
+import Admin from "./apps/admin/pages/Admin";
 import Applications from "./pages/Applications";
 import Workspace from "./apps/workspace/pages/Workspace";
 import Auth from "./pages/Auth";
 
 import { getSession } from "./services/authService";
+import { startSessionTracking } from "./services/sessionService";
 import { WorkspaceProvider } from "./core/workspace/WorkspaceContext";
 import "./App.css";
 
@@ -37,6 +39,10 @@ function ProtectedLayout() {
     return !localStorage.getItem(ONBOARDING_KEY);
   });
 
+  useEffect(() => {
+    if (user) startSessionTracking();
+  }, []);
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
@@ -46,11 +52,13 @@ function ProtectedLayout() {
     setShowOnboarding(false);
   }
 
+  const isSuperAdmin = user?.user?.is_super_admin || user?.is_super_admin;
+
   return (
     <>
       {showOnboarding && <Onboarding onComplete={completeOnboarding} />}
       <div className="app">
-        <Sidebar />
+        <Sidebar isSuperAdmin={isSuperAdmin} />
         <main className="main">
           <Topbar />
           <ErrorBoundary>
@@ -70,6 +78,7 @@ function ProtectedLayout() {
               <Route path="/multi-agent" element={<MultiAgentWorkspace />} />
               <Route path="/marketplace" element={<AgentMarketplace />} />
               <Route path="/content-assets" element={<ContentAssets />} />
+              {isSuperAdmin && <Route path="/admin" element={<Admin />} />}
             </Routes>
           </ErrorBoundary>
         </main>

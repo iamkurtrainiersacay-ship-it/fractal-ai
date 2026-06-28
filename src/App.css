@@ -416,6 +416,56 @@ nav.nav {
   text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
 }
 
+.topbar-session,
+.topbar-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.topbar-session svg,
+.topbar-user svg {
+  color: var(--text-muted);
+}
+
+.topbar-logout {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.topbar-logout:hover {
+  color: var(--red);
+  border-color: rgba(248, 113, 113, 0.3);
+  background: var(--red-subtle);
+}
+
+.nav-admin {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.nav-admin span {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 
 /* ═══════════════════════════════════════
    Typography & Utilities
@@ -3745,6 +3795,26 @@ pre,
   }
   .agent-info-grid {
     grid-template-columns: 1fr;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
