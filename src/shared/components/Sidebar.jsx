@@ -12,7 +12,8 @@ import {
   Settings,
   Layers,
   ChevronDown,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
@@ -100,6 +101,16 @@ export default function Sidebar({ isSuperAdmin }) {
       </div>
 
       <nav className="nav">
+        <NavLink
+          to="/command"
+          className={({ isActive }) =>
+            isActive ? "nav-item active nav-command" : "nav-item nav-command"
+          }
+        >
+          <Sparkles size={18} />
+          <span>Command Center</span>
+        </NavLink>
+
         {nav.map((item) => {
           const Icon = item.icon;
           return (
