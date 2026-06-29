@@ -25,18 +25,26 @@ export async function loginUser(username: string, password: string): Promise<Fra
   const session = data as FractalSession;
 
   const userId = session?.user?.id || session?.id;
-  if (userId) {
-    const { data: userRow } = await supabase
-      .from("app_users")
-      .select("is_super_admin")
-      .eq("id", userId)
-      .single();
-
-    if (userRow) {
-      if (session.user) {
-        session.user.is_super_admin = userRow.is_super_admin || false;
+  const loginUsername = session?.user?.username || session?.username;
+  if (userId || loginUsername) {
+    try {
+      let query = supabase.from("app_users").select("is_super_admin");
+      if (userId) {
+        query = query.eq("id", userId);
+      } else {
+        query = query.eq("username", loginUsername);
       }
-      session.is_super_admin = userRow.is_super_admin || false;
+      const { data: rows } = await query.limit(1);
+      const userRow = rows?.[0];
+
+      if (userRow) {
+        if (session.user) {
+          session.user.is_super_admin = userRow.is_super_admin || false;
+        }
+        session.is_super_admin = userRow.is_super_admin || false;
+      }
+    } catch {
+      // RLS may block this query — admin status won't be available
     }
   }
 
