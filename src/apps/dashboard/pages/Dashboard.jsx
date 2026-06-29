@@ -1,5 +1,7 @@
-﻿import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
+import { StaggerContainer, StaggerItem, FadeIn } from "../../../shared/components/PageTransition";
 import {
   Share2,
   Bot,
@@ -63,35 +65,65 @@ export default function Dashboard() {
 
   return (
     <div className="mission-page">
-      <section className="mission-hero">
-        <div>
-          <p className="sd-eyebrow">Fractal AI Operating System</p>
-          <h1>Mission Control</h1>
-          <p>
-            Central command for agents, workflows, social distribution,
-            knowledge, analytics, and automation.
-          </p>
-        </div>
-
-        <button
-          className="primary-btn"
-          onClick={() => navigate("/applications")}
-        >
-          Open Applications
-        </button>
-      </section>
-
-      <section className="mission-metrics">
-        {metrics.map((metric) => (
-          <div className="mission-metric-card" key={metric.label}>
-            <strong>{metric.value}</strong>
-            <span>{metric.label}</span>
+      <FadeIn>
+        <section className="mission-hero">
+          <div>
+            <motion.p
+              className="sd-eyebrow"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+            >
+              Fractal AI Operating System
+            </motion.p>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Mission Control
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              Central command for agents, workflows, social distribution,
+              knowledge, analytics, and automation.
+            </motion.p>
           </div>
+
+          <motion.button
+            className="primary-btn"
+            onClick={() => navigate("/applications")}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Open Applications
+          </motion.button>
+        </section>
+      </FadeIn>
+
+      <StaggerContainer className="mission-metrics" stagger={0.06}>
+        {metrics.map((metric) => (
+          <StaggerItem key={metric.label}>
+            <motion.div
+              className="mission-metric-card"
+              whileHover={{ y: -3, boxShadow: "0 0 25px rgba(139,92,246,0.2)" }}
+              transition={{ duration: 0.2 }}
+            >
+              <strong>{metric.value}</strong>
+              <span>{metric.label}</span>
+            </motion.div>
+          </StaggerItem>
         ))}
-      </section>
+      </StaggerContainer>
 
       <section className="mission-grid">
-        <div className="mission-panel large">
+        <FadeIn delay={0.2} className="mission-panel large">
           <div className="mission-panel-head">
             <div>
               <h2>Applications</h2>
@@ -99,31 +131,33 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="mission-app-list">
+          <StaggerContainer className="mission-app-list" stagger={0.07}>
             {apps.map((app) => {
               const Icon = app.icon;
-
               return (
-                <button
-                  key={app.title}
-                  className="mission-app-row"
-                  onClick={() => navigate(app.route)}
-                >
-                  <div className="mission-app-icon">
-                    <Icon size={20} />
-                  </div>
-
-                  <div>
-                    <strong>{app.title}</strong>
-                    <span>{app.description}</span>
-                  </div>
-                </button>
+                <StaggerItem key={app.title}>
+                  <motion.button
+                    className="mission-app-row"
+                    onClick={() => navigate(app.route)}
+                    whileHover={{ x: 4, boxShadow: "0 0 20px rgba(139,92,246,0.15)" }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <div className="mission-app-icon">
+                      <Icon size={20} />
+                    </div>
+                    <div>
+                      <strong>{app.title}</strong>
+                      <span>{app.description}</span>
+                    </div>
+                  </motion.button>
+                </StaggerItem>
               );
             })}
-          </div>
-        </div>
+          </StaggerContainer>
+        </FadeIn>
 
-        <div className="mission-panel">
+        <FadeIn delay={0.3} className="mission-panel">
           <div className="mission-panel-head">
             <div>
               <h2>System Health</h2>
@@ -131,25 +165,31 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="health-list">
+          <StaggerContainer className="health-list" stagger={0.05}>
             {health.map((item) => {
               const Icon = item.icon;
-
               return (
-                <div className="health-row" key={item.label}>
-                  <div className="health-left">
-                    <Icon size={18} />
-                    <span>{item.label}</span>
+                <StaggerItem key={item.label}>
+                  <div className="health-row">
+                    <div className="health-left">
+                      <Icon size={18} />
+                      <span>{item.label}</span>
+                    </div>
+                    <motion.strong
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      {item.status}
+                    </motion.strong>
                   </div>
-
-                  <strong>{item.status}</strong>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
-        </div>
+          </StaggerContainer>
+        </FadeIn>
 
-        <div className="mission-panel">
+        <FadeIn delay={0.4} className="mission-panel">
           <div className="mission-panel-head">
             <div>
               <h2>AI Activity</h2>
@@ -157,28 +197,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="activity-feed">
-            <div className="activity-item">
-              <span>Today</span>
-              <p>Social Distribution module upgraded.</p>
-            </div>
-
-            <div className="activity-item">
-              <span>Today</span>
-              <p>Applications hub added.</p>
-            </div>
-
-            <div className="activity-item">
-              <span>Recent</span>
-              <p>OpenAI execution secured through Supabase Edge Functions.</p>
-            </div>
-
-            <div className="activity-item">
-              <span>Recent</span>
-              <p>Agent chat and persistent thread foundation added.</p>
-            </div>
-          </div>
-        </div>
+          <StaggerContainer className="activity-feed" stagger={0.06}>
+            {[
+              { time: "Today", text: "Social Distribution module upgraded." },
+              { time: "Today", text: "Applications hub added." },
+              { time: "Recent", text: "OpenAI execution secured through Supabase Edge Functions." },
+              { time: "Recent", text: "Agent chat and persistent thread foundation added." }
+            ].map((item, i) => (
+              <StaggerItem key={i}>
+                <div className="activity-item">
+                  <span>{item.time}</span>
+                  <p>{item.text}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </FadeIn>
       </section>
     </div>
   );
