@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { SkeletonRow } from "../../../shared/components/Skeleton";
 import toast from "react-hot-toast";
 import {
   Bot, Plus, Trash2, Brain, Shield, Zap, ChevronRight,
@@ -230,6 +231,7 @@ export default function Agents() {
   const [tab, setTab] = useState("overview");
   const [slideOpen, setSlideOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   async function loadAgents() {
     try {
@@ -237,6 +239,8 @@ export default function Agents() {
       setAgents(data || []);
     } catch {
       setAgents([]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -354,7 +358,9 @@ export default function Agents() {
             </div>
 
             <div className="agents-list">
-              {agents.length === 0 ? (
+              {loading ? (
+                [1, 2, 3].map((i) => <SkeletonRow key={i} style={{ padding: "12px 8px" }} />)
+              ) : agents.length === 0 ? (
                 <div className="agents-empty">
                   <p className="muted">No agents yet.</p>
                   <button className="secondary-btn" onClick={openCreate}>

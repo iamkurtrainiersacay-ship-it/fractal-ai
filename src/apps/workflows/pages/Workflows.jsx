@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import { SkeletonPage } from "../../../shared/components/Skeleton";
 import {
   getWorkflows,
   createWorkflow,
@@ -20,6 +21,7 @@ export default function Workflows() {
   const [workflows, setWorkflows] = useState([]);
   const [workflowRuns, setWorkflowRuns] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [stepsByWorkflow, setStepsByWorkflow] = useState({});
   const [running, setRunning] = useState(null);
   const [workflowInputs, setWorkflowInputs] = useState({});
@@ -35,20 +37,25 @@ export default function Workflows() {
   const [stepForms, setStepForms] = useState({});
 
   async function loadData() {
-    const workflowData = await getWorkflows();
-    const runData = await getWorkflowRuns();
-    const agentData = await getAgents();
+    try {
+      const [workflowData, runData, agentData] = await Promise.all([
+        getWorkflows(),
+        getWorkflowRuns(),
+        getAgents()
+      ]);
 
-    setWorkflows(workflowData || []);
-    setWorkflowRuns(runData || []);
-    setAgents(agentData || []);
+      setWorkflows(workflowData || []);
+      setWorkflowRuns(runData || []);
+      setAgents(agentData || []);
 
-    const stepMap = {};
-    for (const workflow of workflowData || []) {
-      stepMap[workflow.id] = await getWorkflowSteps(workflow.id);
+      const stepMap = {};
+      for (const workflow of workflowData || []) {
+        stepMap[workflow.id] = await getWorkflowSteps(workflow.id);
+      }
+      setStepsByWorkflow(stepMap);
+    } finally {
+      setLoading(false);
     }
-
-    setStepsByWorkflow(stepMap);
   }
 
   async function addWorkflow() {
@@ -169,6 +176,8 @@ export default function Workflows() {
   useEffect(() => {
     loadData();
   }, []);
+
+  if (loading) return <SkeletonPage rows={6} />;
 
   return (
     <div className="page">

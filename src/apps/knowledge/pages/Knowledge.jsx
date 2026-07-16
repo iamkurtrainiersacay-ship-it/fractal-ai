@@ -7,6 +7,7 @@ import {
   deleteKnowledge
 } from "../../../services/knowledgeService";
 import { getAgents } from "../../../services/agentService";
+import { SkeletonPage } from "../../../shared/components/Skeleton";
 
 const PAGE_SIZE = 12;
 
@@ -16,6 +17,7 @@ export default function Knowledge() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     title: "",
@@ -35,6 +37,8 @@ export default function Knowledge() {
       setAgents(agentData || []);
     } catch (err) {
       toast.error("Failed to load knowledge data.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -104,6 +108,8 @@ export default function Knowledge() {
   useEffect(() => {
     setPage(0);
   }, [search, typeFilter]);
+
+  if (loading) return <SkeletonPage rows={8} />;
 
   return (
     <div className="page">
