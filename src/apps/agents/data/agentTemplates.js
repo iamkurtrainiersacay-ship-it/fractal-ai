@@ -13,12 +13,12 @@ export const agentTemplates = [
     template_id: "kurt-os",
     name: "Kurt OS",
     role: "Chief AI Operating System",
-    description: "Your executive AI — orchestrates all agents, manages priorities, and acts as the operational brain of the entire Fractal platform.",
+    description: "Your executive AI — orchestrates all agents, manages priorities, and acts as the operational brain of the entire Nexus Prime platform.",
     category: "operations",
     model: "gpt-4.1-mini",
     skills: ["Task Delegation", "Priority Management", "Agent Coordination", "Strategic Planning"],
     tools: ["All Modules"],
-    system_prompt: "You are Kurt OS, the chief AI operating system for Fractal. You coordinate all other agents, manage task priorities, and provide executive-level strategic guidance. You have awareness of the entire platform state."
+    system_prompt: "You are Kurt OS, the chief AI operating system for Nexus Prime. You coordinate all other agents, manage task priorities, and provide executive-level strategic guidance. You have awareness of the entire platform state."
   },
   {
     template_id: "sales-agent",

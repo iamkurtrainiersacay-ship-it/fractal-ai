@@ -10,7 +10,7 @@ import {
 
 const STEPS = [
   {
-    title: "Welcome to Fractal AI",
+    title: "Welcome to Nexus Prime",
     description: "Let's walk through your AI Operating System together. You'll interact with real features as we go.",
     target: null,
     action: "click-next",
@@ -109,7 +109,7 @@ const STEPS = [
   },
   {
     title: "You're all set!",
-    description: "You've explored the core of Fractal AI. Go build something amazing — install agents from the Marketplace, create workflows, or start distributing content.",
+    description: "You've explored the core of Nexus Prime. Go build something amazing — install agents from the Marketplace, create workflows, or start distributing content.",
     target: null,
     action: "finish",
     position: "center"

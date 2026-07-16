@@ -109,7 +109,7 @@ export default function Knowledge() {
     <div className="page">
       <div className="page-header">
         <h1>Knowledge</h1>
-        <p>Fractal memory system: SOPs, prompts, workflows, client data, and research.</p>
+        <p>Nexus memory system: SOPs, prompts, workflows, client data, and research.</p>
       </div>
 
       <div className="panel" style={{ marginBottom: "20px" }}>

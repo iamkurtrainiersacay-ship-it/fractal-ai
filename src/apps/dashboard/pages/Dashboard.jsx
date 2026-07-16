@@ -1,56 +1,22 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
 import { StaggerContainer, StaggerItem, FadeIn } from "../../../shared/components/PageTransition";
+import { getAgents } from "../../../services/agentService";
+import { getActivityLogs } from "../../../services/activityService";
+import { getAnalytics } from "../../analytics/services/analyticsService";
 import {
-  Share2,
-  Bot,
-  Brain,
-  Workflow,
-  BarChart3,
-  Plug,
-  Activity,
-  ShieldCheck,
-  Database,
-  Zap
+  Share2, Bot, Brain, Workflow, BarChart3, Plug,
+  Activity, ShieldCheck, Database, Zap
 } from "lucide-react";
 
 const apps = [
-  {
-    title: "Social Distribution",
-    description: "Review, schedule, and publish AI-generated content.",
-    route: "/social-distribution",
-    icon: Share2
-  },
-  {
-    title: "AI Agents",
-    description: "Run specialized agents and chat workflows.",
-    route: "/run-agent",
-    icon: Bot
-  },
-  {
-    title: "Knowledge Base",
-    description: "Manage internal memory and context.",
-    route: "/knowledge",
-    icon: Brain
-  },
-  {
-    title: "Workflows",
-    description: "Build repeatable AI automation systems.",
-    route: "/workflows",
-    icon: Workflow
-  }
+  { title: "Social Distribution", description: "Review, schedule, and publish AI-generated content.", route: "/social-distribution", icon: Share2 },
+  { title: "AI Agents", description: "Run specialized agents and chat workflows.", route: "/run-agent", icon: Bot },
+  { title: "Knowledge Base", description: "Manage internal memory and context.", route: "/knowledge", icon: Brain },
+  { title: "Workflows", description: "Build repeatable AI automation systems.", route: "/workflows", icon: Workflow }
 ];
-
-function useMetrics() {
-  const { workspace } = useWorkspace();
-  return [
-    { label: "Apps Installed", value: "6" },
-    { label: "AI Modules", value: "4" },
-    { label: "System Status", value: "Live" },
-    { label: "Workspace", value: workspace.name.split(" ")[0] }
-  ];
-}
 
 const health = [
   { label: "Supabase", status: "Connected", icon: Database },
@@ -59,9 +25,68 @@ const health = [
   { label: "Security", status: "Protected", icon: ShieldCheck }
 ];
 
+function formatTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return "Just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatAction(log) {
+  const action = log.action || "";
+  const meta = log.metadata || {};
+  if (action === "agent_run") return `Agent "${meta.agent_name || "Unknown"}" ran`;
+  if (action === "orchestrator_run") return `Command: ${(meta.prompt || "").slice(0, 60)}`;
+  if (action === "session_start") return `Session started`;
+  if (action === "session_end") return `Session ended — ${meta.duration_minutes || 0}m`;
+  if (action === "workflow_run") return `Workflow executed`;
+  return action.replace(/_/g, " ");
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
-  const metrics = useMetrics();
+  const { workspace } = useWorkspace();
+
+  const [agentCount, setAgentCount] = useState("—");
+  const [analytics, setAnalytics] = useState({ runs: "—", tokens: "—", cost: "—" });
+  const [activity, setActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [agents, stats, logs] = await Promise.all([
+          getAgents().catch(() => []),
+          getAnalytics().catch(() => ({ runs: 0, tokens: 0, cost: "0" })),
+          getActivityLogs().catch(() => [])
+        ]);
+
+        setAgentCount(agents.length);
+        setAnalytics({
+          runs: stats.runs,
+          tokens: stats.tokens >= 1000 ? `${(stats.tokens / 1000).toFixed(1)}k` : stats.tokens,
+          cost: `$${Number(stats.cost).toFixed(2)}`
+        });
+        setActivity(logs.slice(0, 5));
+      } catch {
+        // fail silently — keep placeholders
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const metrics = [
+    { label: "Agents Installed", value: agentCount },
+    { label: "Agent Runs", value: analytics.runs },
+    { label: "Tokens Used", value: analytics.tokens },
+    { label: "Total Cost", value: analytics.cost }
+  ];
 
   return (
     <div className="mission-page">
@@ -74,7 +99,7 @@ export default function Dashboard() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
             >
-              Fractal AI Operating System
+              Nexus Prime Operating System
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -115,7 +140,7 @@ export default function Dashboard() {
               whileHover={{ y: -3, boxShadow: "0 0 25px rgba(139,92,246,0.2)" }}
               transition={{ duration: 0.2 }}
             >
-              <strong>{metric.value}</strong>
+              <strong>{loading ? "—" : metric.value}</strong>
               <span>{metric.label}</span>
             </motion.div>
           </StaggerItem>
@@ -127,7 +152,7 @@ export default function Dashboard() {
           <div className="mission-panel-head">
             <div>
               <h2>Applications</h2>
-              <p>Launch core Fractal modules.</p>
+              <p>Launch core Nexus modules.</p>
             </div>
           </div>
 
@@ -198,19 +223,20 @@ export default function Dashboard() {
           </div>
 
           <StaggerContainer className="activity-feed" stagger={0.06}>
-            {[
-              { time: "Today", text: "Social Distribution module upgraded." },
-              { time: "Today", text: "Applications hub added." },
-              { time: "Recent", text: "OpenAI execution secured through Supabase Edge Functions." },
-              { time: "Recent", text: "Agent chat and persistent thread foundation added." }
-            ].map((item, i) => (
-              <StaggerItem key={i}>
-                <div className="activity-item">
-                  <span>{item.time}</span>
-                  <p>{item.text}</p>
-                </div>
-              </StaggerItem>
-            ))}
+            {activity.length === 0 && !loading ? (
+              <p className="muted" style={{ fontSize: "13px", padding: "8px 0" }}>
+                No activity yet. Run an agent or workflow to see logs here.
+              </p>
+            ) : (
+              activity.map((log, i) => (
+                <StaggerItem key={log.id || i}>
+                  <div className="activity-item">
+                    <span>{formatTime(log.created_at)}</span>
+                    <p>{formatAction(log)}</p>
+                  </div>
+                </StaggerItem>
+              ))
+            )}
           </StaggerContainer>
         </FadeIn>
       </section>

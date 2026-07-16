@@ -3,7 +3,8 @@ import { getWorkspaces } from "../../services/workspaceService";
 
 const WorkspaceContext = createContext();
 
-const STORAGE_KEY = "fractal_workspace_id";
+const STORAGE_KEY = "nexus_workspace_id";
+const OLD_STORAGE_KEY = "fractal_workspace_id";
 
 const fallbackWorkspace = {
   id: "default",
@@ -21,6 +22,13 @@ export function WorkspaceProvider({ children }) {
   }, []);
 
   async function loadWorkspaces() {
+    // Migrate old key once
+    const oldVal = localStorage.getItem(OLD_STORAGE_KEY);
+    if (oldVal && !localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, oldVal);
+      localStorage.removeItem(OLD_STORAGE_KEY);
+    }
+
     try {
       const data = await getWorkspaces();
 

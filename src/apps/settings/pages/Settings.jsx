@@ -93,7 +93,7 @@ export default function Settings() {
         <div className="ws-settings">
           <div className="panel" style={{ padding: 24 }}>
             <h2>Platform</h2>
-            <p className="muted" style={{ marginBottom: 18 }}>Fractal AI Operating System</p>
+            <p className="muted" style={{ marginBottom: 18 }}>Nexus Prime Operating System</p>
 
             <div className="workspace-stats" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
               <div className="workspace-stat">

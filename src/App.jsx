@@ -32,11 +32,18 @@ import { startSessionTracking } from "./services/sessionService";
 import { WorkspaceProvider } from "./core/workspace/WorkspaceContext";
 import "./App.css";
 
-const ONBOARDING_KEY = "fractal_onboarding_complete";
+const ONBOARDING_KEY = "nexus_onboarding_complete";
+const OLD_ONBOARDING_KEY = "fractal_onboarding_complete";
 
 function ProtectedLayout() {
   const user = getSession();
   const [showOnboarding, setShowOnboarding] = useState(() => {
+    // Migrate old key once
+    const oldVal = localStorage.getItem(OLD_ONBOARDING_KEY);
+    if (oldVal && !localStorage.getItem(ONBOARDING_KEY)) {
+      localStorage.setItem(ONBOARDING_KEY, oldVal);
+      localStorage.removeItem(OLD_ONBOARDING_KEY);
+    }
     return !localStorage.getItem(ONBOARDING_KEY);
   });
 

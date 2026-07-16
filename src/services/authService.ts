@@ -1,6 +1,7 @@
 import { supabase } from "../core/database/supabase";
 
-const SESSION_KEY = "fractal_user";
+const SESSION_KEY = "nexus_user";
+const OLD_SESSION_KEY = "fractal_user";
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface FractalSession {
@@ -71,6 +72,13 @@ export function saveSession(user: FractalSession): void {
 }
 
 export function getSession(): FractalSession | null {
+  // Migrate old key once
+  const oldRaw = localStorage.getItem(OLD_SESSION_KEY);
+  if (oldRaw && !localStorage.getItem(SESSION_KEY)) {
+    localStorage.setItem(SESSION_KEY, oldRaw);
+    localStorage.removeItem(OLD_SESSION_KEY);
+  }
+
   const raw = localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
 

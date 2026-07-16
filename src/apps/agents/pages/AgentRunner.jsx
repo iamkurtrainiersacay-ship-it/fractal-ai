@@ -204,7 +204,7 @@ Note: Memory is disabled for this thread. Do not rely on prior chat history unle
     <div className="chat-page">
       <div className="chat-hero">
         <div>
-          <p className="eyebrow">Fractal OS</p>
+          <p className="eyebrow">Nexus Prime</p>
           <h1>Agent Chat</h1>
           <p className="muted">
             Persistent threads, workspace context, client separation, and optional memory.
@@ -292,8 +292,8 @@ Note: Memory is disabled for this thread. Do not rely on prior chat history unle
           <div className="chat-messages">
             {messages.length === 0 ? (
               <div className="empty-chat">
-                <div className="fractal-orb">✦</div>
-                <h2>Start a Fractal thread</h2>
+                <div className="nexus-orb">✦</div>
+                <h2>Start a Nexus thread</h2>
                 <p>
                   Choose an agent, workspace, and client. Then start chatting.
                 </p>
@@ -326,7 +326,7 @@ Note: Memory is disabled for this thread. Do not rely on prior chat history unle
 
           <div className="chat-input-bar">
             <textarea
-              placeholder="Message Fractal..."
+              placeholder="Message Nexus..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}

@@ -1,7 +1,8 @@
 import { getSession } from "./authService";
 import { updateUserOnlineStatus, logSession } from "./adminService";
 
-const SESSION_START_KEY = "fractal_session_start";
+const SESSION_START_KEY = "nexus_session_start";
+const OLD_SESSION_START_KEY = "fractal_session_start";
 const HEARTBEAT_INTERVAL = 60000;
 
 let heartbeatTimer = null;
@@ -12,6 +13,13 @@ export function startSessionTracking() {
 
   const userId = session.user?.id || session.id;
   const username = session.user?.username || session.username || "Unknown";
+
+  // Migrate old key once
+  const oldVal = localStorage.getItem(OLD_SESSION_START_KEY);
+  if (oldVal && !localStorage.getItem(SESSION_START_KEY)) {
+    localStorage.setItem(SESSION_START_KEY, oldVal);
+    localStorage.removeItem(OLD_SESSION_START_KEY);
+  }
 
   localStorage.setItem(SESSION_START_KEY, Date.now().toString());
 

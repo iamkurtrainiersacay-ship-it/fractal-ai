@@ -18,7 +18,7 @@ export async function executeWorkflow(workflow, input) {
     const agent = agents[0];
 
     const fallbackPrompt = `
-You are executing a Fractal workflow.
+You are executing a Nexus workflow.
 
 WORKFLOW:
 ${workflow.name}
@@ -43,7 +43,7 @@ Execute this workflow step-by-step and return the final operational output.
         agents.find((item) => item.id === step.agent_id) || agents[0];
 
       const stepPrompt = `
-You are executing one step in a multi-agent Fractal workflow.
+You are executing one step in a multi-agent Nexus workflow.
 
 WORKFLOW:
 ${workflow.name}

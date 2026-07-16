@@ -189,9 +189,9 @@ export default function FractalCommand() {
           >
             <Sparkles size={28} />
           </motion.div>
-          <h1 className="command-title">Fractal Command Center</h1>
+          <h1 className="command-title">Nexus Command Center</h1>
           <p className="command-subtitle">
-            One prompt. Multiple modules. Tell Fractal what you need and it orchestrates everything.
+            One prompt. Multiple modules. Tell Nexus what you need and it orchestrates everything.
           </p>
         </section>
       </FadeIn>
@@ -202,7 +202,7 @@ export default function FractalCommand() {
             <div className="command-empty">
               <Brain size={36} style={{ color: "var(--primary)", marginBottom: "12px" }} />
               <h3>What would you like to do?</h3>
-              <p>Type a natural language command — Fractal will figure out which tools to use.</p>
+              <p>Type a natural language command — Nexus will figure out which tools to use.</p>
 
               <StaggerContainer className="command-suggestions" stagger={0.04}>
                 {SUGGESTIONS.map((s) => (
@@ -289,7 +289,7 @@ export default function FractalCommand() {
           <Sparkles size={18} className="command-input-icon" />
           <input
             ref={inputRef}
-            placeholder="Tell Fractal what to do..."
+            placeholder="Tell Nexus what to do..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             disabled={running}

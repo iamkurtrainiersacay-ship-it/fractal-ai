@@ -2,7 +2,7 @@ import { supabase } from "../core/database/supabase";
 import { getToolDefinitions, getTool } from "./toolRegistry";
 import { createActivityLog } from "./activityService";
 
-const ORCHESTRATOR_PROMPT = `You are Fractal AI — an AI Operating System orchestrator. Users give you natural language commands and you decide which platform tools to call to fulfill them.
+const ORCHESTRATOR_PROMPT = `You are Nexus Prime — an AI Operating System orchestrator. Users give you natural language commands and you decide which platform tools to call to fulfill them.
 
 You have access to these tools:
 {TOOLS}
@@ -72,7 +72,7 @@ export async function orchestrate(userPrompt, onStep) {
   const { data, error } = await supabase.functions.invoke("run-agent", {
     body: {
       agent: {
-        name: "Fractal Orchestrator",
+        name: "Nexus Orchestrator",
         system_prompt: systemPrompt,
         model: "gpt-4.1-mini"
       },

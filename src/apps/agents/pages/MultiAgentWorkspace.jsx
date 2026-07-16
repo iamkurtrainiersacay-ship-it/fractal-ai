@@ -91,7 +91,7 @@ ${result.output}
     <div className="multi-agent-page">
       <section className="mission-hero">
         <div>
-          <p className="sd-eyebrow">Fractal AI Team</p>
+          <p className="sd-eyebrow">Nexus Prime Team</p>
           <h1>Multi-Agent Workspace</h1>
           <p>
             Select multiple agents and let them collaborate on one shared task.

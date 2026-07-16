@@ -60,7 +60,7 @@ export default function Sidebar({ isSuperAdmin }) {
       <div className="brand">
         <div className="brand-icon">&#10022;</div>
         <div>
-          <h1>Fractal AI</h1>
+          <h1>Nexus Prime</h1>
           <p>AI Operating System</p>
         </div>
       </div>

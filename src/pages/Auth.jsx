@@ -68,7 +68,7 @@ export default function Auth() {
       }
 
       saveSession(result);
-      setMessage("Authenticated. Launching Fractal...");
+      setMessage("Authenticated. Launching Nexus...");
       setTimeout(() => {
         window.location.href = "/";
       }, 600);
@@ -111,7 +111,7 @@ export default function Auth() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            Fractal AI
+            Nexus Prime
           </motion.h1>
 
           <motion.p
@@ -181,7 +181,7 @@ export default function Auth() {
             >
               <div className="auth-card-header">
                 <h2>{mode === "login" ? "Welcome back" : "Create account"}</h2>
-                <p>{mode === "login" ? "Sign in to your workspace" : "Set up your Fractal identity"}</p>
+                <p>{mode === "login" ? "Sign in to your workspace" : "Set up your Nexus identity"}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="auth-form">

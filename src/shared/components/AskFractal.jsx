@@ -163,34 +163,34 @@ export default function AskFractal() {
   return (
     <>
       <button
-        className="ask-fractal-btn"
+        className="ask-nexus-btn"
         onClick={() => setIsOpen(!isOpen)}
-        title="Ask Fractal"
+        title="Ask Nexus"
       >
         {isOpen ? <ChevronDown size={20} /> : <Sparkles size={20} />}
-        <span>Ask Fractal</span>
+        <span>Ask Nexus</span>
       </button>
 
       {isOpen && (
-        <div className="ask-fractal-panel">
-          <div className="ask-fractal-header">
+        <div className="ask-nexus-panel">
+          <div className="ask-nexus-header">
             <Sparkles size={16} />
-            <h3>Ask Fractal</h3>
-            <button className="ask-fractal-close" onClick={() => setIsOpen(false)}>
+            <h3>Ask Nexus</h3>
+            <button className="ask-nexus-close" onClick={() => setIsOpen(false)}>
               <X size={14} />
             </button>
           </div>
 
-          <div className="ask-fractal-chat" ref={chatRef}>
+          <div className="ask-nexus-chat" ref={chatRef}>
             {history.length === 0 && (
-              <div className="ask-fractal-empty">
+              <div className="ask-nexus-empty">
                 <Sparkles size={28} style={{ color: "var(--primary)", marginBottom: "8px" }} />
-                <p>Ask me anything about Fractal AI</p>
-                <div className="ask-fractal-suggestions">
+                <p>Ask me anything about Nexus Prime</p>
+                <div className="ask-nexus-suggestions">
                   {["How do I create a workflow?", "How do I use agents?", "How does Social Distribution work?"].map((q) => (
                     <button
                       key={q}
-                      className="ask-fractal-suggestion"
+                      className="ask-nexus-suggestion"
                       onClick={() => { setQuery(q); handleInput(q); }}
                     >
                       {q}
@@ -201,9 +201,9 @@ export default function AskFractal() {
             )}
 
             {history.map((msg, i) => (
-              <div key={i} className={`ask-fractal-msg ${msg.role}`}>
+              <div key={i} className={`ask-nexus-msg ${msg.role}`}>
                 <div
-                  className="ask-fractal-bubble"
+                  className="ask-nexus-bubble"
                   dangerouslySetInnerHTML={{ __html: formatAnswer(msg.text) }}
                 />
               </div>
@@ -211,11 +211,11 @@ export default function AskFractal() {
           </div>
 
           {results.length > 0 && (
-            <div className="ask-fractal-autocomplete">
+            <div className="ask-nexus-autocomplete">
               {results.map((item) => (
                 <button
                   key={item.title}
-                  className="ask-fractal-ac-item"
+                  className="ask-nexus-ac-item"
                   onClick={() => selectSuggestion(item)}
                 >
                   <strong>{item.title}</strong>
@@ -225,7 +225,7 @@ export default function AskFractal() {
             </div>
           )}
 
-          <form className="ask-fractal-input" onSubmit={handleSubmit}>
+          <form className="ask-nexus-input" onSubmit={handleSubmit}>
             <input
               ref={inputRef}
               placeholder="Ask a question..."

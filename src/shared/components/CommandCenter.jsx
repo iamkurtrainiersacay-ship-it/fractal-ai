@@ -67,7 +67,7 @@ export default function CommandCenter() {
           <Search size={20} />
           <input
             autoFocus
-            placeholder="Ask Fractal or jump to a module..."
+            placeholder="Ask Nexus or jump to a module..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

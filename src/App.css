@@ -1527,7 +1527,7 @@ pre,
   color: var(--text-secondary);
 }
 
-.fractal-orb {
+.nexus-orb {
   width: 72px;
   height: 72px;
   margin: 0 auto 18px;
@@ -4167,10 +4167,172 @@ pre,
 
 
 /* ═══════════════════════════════════════
-   Ask Fractal
+   Slide-over Panel
    ═══════════════════════════════════════ */
 
-.ask-fractal-btn {
+.slideover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+}
+
+.slideover-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 480px;
+  max-width: 95vw;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.slideover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.slideover-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary);
+}
+
+.slideover-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.slideover-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.slideover-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass);
+}
+
+.slideover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.slideover-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slideover-field.grow {
+  flex: 1;
+}
+
+.slideover-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.field-required {
+  color: var(--red);
+  margin-left: 2px;
+}
+
+.slideover-field input,
+.slideover-field select {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.slideover-field input:focus,
+.slideover-field select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+.slideover-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.slideover-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.slideover-textarea {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 200px;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.slideover-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+.slideover-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+/* ═══════════════════════════════════════
+   Ask Nexus
+   ═══════════════════════════════════════ */
+
+.ask-nexus-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4186,12 +4348,12 @@ pre,
   transition: all var(--duration) var(--ease);
 }
 
-.ask-fractal-btn:hover {
+.ask-nexus-btn:hover {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.22) 0%, rgba(6, 182, 212, 0.12) 100%);
   box-shadow: var(--shadow-glow);
 }
 
-.ask-fractal-panel {
+.ask-nexus-panel {
   position: fixed;
   bottom: 16px;
   left: 16px;
@@ -4215,7 +4377,7 @@ pre,
   to { opacity: 1; transform: translateY(0); }
 }
 
-.ask-fractal-header {
+.ask-nexus-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4225,14 +4387,14 @@ pre,
   flex-shrink: 0;
 }
 
-.ask-fractal-header h3 {
+.ask-nexus-header h3 {
   font-size: 14px;
   font-weight: 700;
   margin: 0;
   color: var(--text);
 }
 
-.ask-fractal-close {
+.ask-nexus-close {
   margin-left: auto;
   background: transparent;
   border: 1px solid var(--border);
@@ -4246,12 +4408,12 @@ pre,
   transition: all var(--duration) var(--ease);
 }
 
-.ask-fractal-close:hover {
+.ask-nexus-close:hover {
   color: var(--text);
   border-color: var(--border-hover);
 }
 
-.ask-fractal-chat {
+.ask-nexus-chat {
   flex: 1;
   overflow-y: auto;
   padding: 14px 16px;
@@ -4262,7 +4424,7 @@ pre,
   max-height: 340px;
 }
 
-.ask-fractal-empty {
+.ask-nexus-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4273,13 +4435,13 @@ pre,
   padding: 20px 0;
 }
 
-.ask-fractal-empty p {
+.ask-nexus-empty p {
   color: var(--text-secondary);
   font-size: 14px;
   margin: 0;
 }
 
-.ask-fractal-suggestions {
+.ask-nexus-suggestions {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -4287,7 +4449,7 @@ pre,
   width: 100%;
 }
 
-.ask-fractal-suggestion {
+.ask-nexus-suggestion {
   background: var(--bg-inset);
   border: 1px solid var(--border);
   color: var(--text-secondary);
@@ -4299,21 +4461,21 @@ pre,
   transition: all var(--duration) var(--ease);
 }
 
-.ask-fractal-suggestion:hover {
+.ask-nexus-suggestion:hover {
   border-color: var(--border-accent);
   color: var(--text);
   background: var(--primary-subtle);
 }
 
-.ask-fractal-msg {
+.ask-nexus-msg {
   display: flex;
 }
 
-.ask-fractal-msg.user {
+.ask-nexus-msg.user {
   justify-content: flex-end;
 }
 
-.ask-fractal-bubble {
+.ask-nexus-bubble {
   max-width: 85%;
   padding: 10px 14px;
   border-radius: var(--radius-md);
@@ -4323,24 +4485,24 @@ pre,
   word-break: break-word;
 }
 
-.ask-fractal-msg.user .ask-fractal-bubble {
+.ask-nexus-msg.user .ask-nexus-bubble {
   background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
   color: white;
   border-bottom-right-radius: 4px;
 }
 
-.ask-fractal-msg.assistant .ask-fractal-bubble {
+.ask-nexus-msg.assistant .ask-nexus-bubble {
   background: var(--bg-glass);
   border: 1px solid var(--border);
   color: var(--text-secondary);
   border-bottom-left-radius: 4px;
 }
 
-.ask-fractal-msg.assistant .ask-fractal-bubble strong {
+.ask-nexus-msg.assistant .ask-nexus-bubble strong {
   color: var(--text);
 }
 
-.ask-fractal-autocomplete {
+.ask-nexus-autocomplete {
   border-top: 1px solid var(--border);
   padding: 6px;
   max-height: 160px;
@@ -4348,7 +4510,7 @@ pre,
   flex-shrink: 0;
 }
 
-.ask-fractal-ac-item {
+.ask-nexus-ac-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -4363,20 +4525,20 @@ pre,
   transition: all var(--duration) var(--ease);
 }
 
-.ask-fractal-ac-item:hover {
+.ask-nexus-ac-item:hover {
   background: var(--primary-subtle);
 }
 
-.ask-fractal-ac-item strong {
+.ask-nexus-ac-item strong {
   font-size: 13px;
 }
 
-.ask-fractal-ac-item span {
+.ask-nexus-ac-item span {
   color: var(--text-muted);
   font-size: 11.5px;
 }
 
-.ask-fractal-input {
+.ask-nexus-input {
   display: flex;
   gap: 8px;
   padding: 12px 14px;
@@ -4384,7 +4546,7 @@ pre,
   flex-shrink: 0;
 }
 
-.ask-fractal-input input {
+.ask-nexus-input input {
   flex: 1;
   background: var(--bg-inset);
   border: 1px solid var(--border);
@@ -4396,11 +4558,11 @@ pre,
   transition: border-color var(--duration) var(--ease);
 }
 
-.ask-fractal-input input:focus {
+.ask-nexus-input input:focus {
   border-color: var(--primary);
 }
 
-.ask-fractal-input button {
+.ask-nexus-input button {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
@@ -4414,17 +4576,17 @@ pre,
   flex-shrink: 0;
 }
 
-.ask-fractal-input button:hover:not(:disabled) {
+.ask-nexus-input button:hover:not(:disabled) {
   box-shadow: var(--shadow-glow);
 }
 
-.ask-fractal-input button:disabled {
+.ask-nexus-input button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
 @media (max-width: 900px) {
-  .ask-fractal-panel {
+  .ask-nexus-panel {
     width: calc(100vw - 32px);
     left: 16px;
     right: 16px;
