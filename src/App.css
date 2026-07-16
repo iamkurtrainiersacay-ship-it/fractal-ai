@@ -5128,3 +5128,1506 @@ pre,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ═══════════════════════════════════════
+   Sprint 3 — Knowledge File Upload
+   ═══════════════════════════════════════ */
+
+.knowledge-add-panel {
+  margin-bottom: 20px;
+}
+
+.knowledge-add-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.knowledge-add-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.knowledge-add-tab:hover {
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+
+.knowledge-add-tab.active {
+  background: var(--primary-muted);
+  border-color: var(--border-accent);
+  color: var(--primary);
+}
+
+.knowledge-write-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.knowledge-write-grid input,
+.knowledge-write-grid select {
+  width: 100%;
+}
+
+.knowledge-dropzone {
+  border: 2px dashed var(--border-hover);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  background: var(--bg-inset);
+}
+
+.knowledge-dropzone:hover,
+.knowledge-dropzone.active {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.knowledge-dropzone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.knowledge-dropzone-inner p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.knowledge-dropzone-inner span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.3px;
+}
+
+.kd-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.knowledge-url-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.knowledge-url-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-inset);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.knowledge-url-summary {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-inset);
+  color: var(--text);
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.knowledge-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.knowledge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.knowledge-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  position: relative;
+  transition: border-color var(--duration) var(--ease);
+}
+
+.knowledge-card:hover {
+  border-color: var(--border-hover);
+}
+
+.knowledge-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.knowledge-card-head h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.knowledge-card-agent {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.knowledge-card-content {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.knowledge-card-content p {
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.knowledge-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+}
+
+.knowledge-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.knowledge-delete-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity var(--duration);
+}
+
+.knowledge-card:hover .knowledge-delete-btn {
+  opacity: 1;
+}
+
+.knowledge-delete-btn:hover {
+  color: var(--red);
+  background: var(--red-subtle);
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 3 — Agent Execution Logs
+   ═══════════════════════════════════════ */
+
+.agent-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-log-item {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--duration);
+}
+
+.agent-log-item:hover {
+  border-color: var(--border-hover);
+}
+
+.agent-log-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.agent-log-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-log-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.agent-log-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono, monospace);
+}
+
+.agent-log-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.agent-log-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.agent-log-chip.green {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, 0.2);
+  background: var(--green-subtle);
+}
+
+.agent-log-expanded {
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.agent-log-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.agent-log-section:last-child {
+  border-bottom: none;
+}
+
+.agent-log-section label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.agent-log-section pre {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  margin: 0;
+  font-family: var(--font-mono, "JetBrains Mono", "Fira Code", monospace);
+}
+
+/* ═══════════════════════════════════════
+   Sprint 3 — Unified Ctrl+K Search
+   ═══════════════════════════════════════ */
+
+.command-group {
+  margin-bottom: 4px;
+}
+
+.command-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 8px 14px 4px;
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration), color var(--duration);
+  margin: 1px 0;
+}
+
+.command-item:hover,
+.command-item.active {
+  background: var(--primary-subtle);
+  color: var(--text);
+}
+
+.command-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+.command-item-text span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.command-item-text small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.command-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.command-searching {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.command-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.command-footer span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.command-footer kbd {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════
+   Sprint 3 — Visual Workflow Builder
+   ═══════════════════════════════════════ */
+
+.wf-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wf-card {
+  position: relative;
+}
+
+.wf-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wf-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.wf-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  border: 1px solid var(--border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.wf-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wf-builder {
+  overflow: hidden;
+}
+
+.wf-builder-inner {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.wf-builder-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.wf-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.wf-step-card {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--duration);
+}
+
+.wf-step-card:hover {
+  border-color: var(--border-hover);
+}
+
+.wf-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.wf-step-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wf-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-muted);
+  border: 1px solid var(--border-accent);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wf-step-name {
+  font-size: 13px;
+  color: var(--text);
+  display: block;
+}
+
+.wf-step-agent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.wf-step-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.wf-step-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity var(--duration), color var(--duration);
+}
+
+.wf-step-card:hover .wf-step-del {
+  opacity: 1;
+}
+
+.wf-step-del:hover {
+  color: var(--red);
+}
+
+.wf-step-body {
+  border-top: 1px solid var(--border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.wf-step-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-step-field label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.wf-step-field input,
+.wf-step-field select,
+.wf-step-field textarea {
+  width: 100%;
+}
+
+.wf-empty-steps {
+  text-align: center;
+  padding: 20px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.wf-add-step {
+  background: var(--bg-glass);
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.wf-add-step h5 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.wf-add-step-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.wf-run-zone {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.wf-run-input {
+  flex: 1;
+  resize: none;
+  font-family: inherit;
+}
+
+.wf-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  display: inline-block;
+}
+
+.wf-runs-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 0;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 3 — Workspace Timeline
+   ═══════════════════════════════════════ */
+
+.wt-panel {
+  margin-top: 20px;
+}
+
+.wt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.wt-loading,
+.wt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--text-muted);
+}
+
+.wt-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.wt-day-group {
+  margin-bottom: 8px;
+}
+
+.wt-day-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 4px 0 8px;
+}
+
+.wt-entry {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.wt-line-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.wt-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wt-connector {
+  width: 1px;
+  flex: 1;
+  background: var(--border);
+  margin: 4px 0;
+  min-height: 8px;
+}
+
+.wt-content {
+  flex: 1;
+  padding-bottom: 12px;
+}
+
+.wt-content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wt-content-row strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.wt-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.wt-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 3 — override command-results for grouped layout
+   ═══════════════════════════════════════ */
+
+/* Sprint 3 — override command-results for grouped layout */
+.command-results {
+  display: block;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+  gap: 0;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 4 — Applications Redesign
+   ═══════════════════════════════════════ */
+
+.apps-header-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+}
+
+.apps-header-stat strong {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.apps-header-stat span {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.apps-grid-v4 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.app-card-v4 {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-card-v4::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, var(--app-glow, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.app-card-v4:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px var(--border-hover);
+}
+
+.app-card-v4:hover::before {
+  opacity: 1;
+}
+
+.app-card-v4-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.app-card-v4-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.app-card-v4-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.app-card-v4-stat span {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.app-card-v4-stat small {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-card-v4 h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.app-card-v4 p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.app-card-v4-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.app-card-v4-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-color, var(--primary));
+  opacity: 0.7;
+  transition: opacity var(--duration);
+}
+
+.app-card-v4:hover .app-card-v4-open {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 4 — Projects Redesign
+   ═══════════════════════════════════════ */
+
+.proj-filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.proj-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.proj-filter-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.proj-filter-btn.active {
+  background: var(--primary-subtle);
+  border-color: var(--border-accent);
+  color: var(--primary);
+}
+
+.proj-filter-count {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.proj-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.proj-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color var(--duration);
+}
+
+.proj-card:hover {
+  border-color: var(--border-hover);
+}
+
+.proj-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.proj-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  border: 1px solid var(--border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.proj-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.proj-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proj-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proj-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.proj-cmd {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  color: var(--text-secondary);
+}
+
+.proj-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.proj-status-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+.proj-status-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+  box-shadow: var(--shadow-lg);
+  margin-top: 4px;
+}
+
+.proj-status-menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--duration);
+}
+
+.proj-status-menu button:hover {
+  background: var(--bg-inset);
+}
+
+/* ═══════════════════════════════════════
+   Sprint 4 — Analytics Polish
+   ═══════════════════════════════════════ */
+
+.analytics-range-tabs {
+  display: flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+.analytics-range-btn {
+  padding: 5px 12px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration);
+}
+
+.analytics-range-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.analytics-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.analytics-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.analytics-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.analytics-stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+}
+
+.analytics-stat-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.analytics-stat-sub {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.7;
+  margin-top: 1px;
+}
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  gap: 8px;
+}
+
+.analytics-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.analytics-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.analytics-feed-item:last-child {
+  border-bottom: none;
+}
+
+.analytics-feed-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 4 — Settings Profile Tab
+   ═══════════════════════════════════════ */
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-muted);
+  border: 2px solid var(--border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-admin-badge {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  background: var(--primary);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.3px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-email {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.profile-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════
+   Sprint 4 — Mobile Responsive
+   ═══════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .apps-grid-v4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analytics-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .agents-shell {
+    flex-direction: column;
+  }
+
+  .agents-sidebar {
+    width: 100%;
+    max-height: 260px;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agents-main {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .apps-grid-v4 {
+    grid-template-columns: 1fr;
+  }
+
+  .knowledge-write-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proj-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wf-add-step-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-detail-header {
+    flex-wrap: wrap;
+  }
+
+  .agent-detail-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mp-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .mp-controls {
+    flex-direction: column;
+  }
+
+  .mp-categories {
+    flex-wrap: wrap;
+  }
+
+  .mp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .knowledge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proj-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .knowledge-filter-bar {
+    flex-wrap: wrap;
+  }
+
+  .wf-run-zone {
+    flex-direction: column;
+  }
+
+  .wf-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wf-card-actions {
+    flex-wrap: wrap;
+  }
+
+  .sd-shell {
+    flex-direction: column;
+  }
+
+  .sd-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .chat-window {
+    height: 60vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-tabs {
+    flex-wrap: wrap;
+  }
+
+  .wt-content-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .proj-card-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+

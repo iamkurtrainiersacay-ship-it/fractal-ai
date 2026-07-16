@@ -26,3 +26,19 @@ export async function getActivityLogs() {
 
   return data || [];
 }
+
+export async function getActivityLogsByAgent(agentId) {
+  const { data, error } = await supabase
+    .from("activity_logs")
+    .select("*")
+    .eq("entity_id", agentId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error("Get agent logs error:", error);
+    return [];
+  }
+
+  return data || [];
+}

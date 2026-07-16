@@ -29,6 +29,21 @@ export async function createWorkflowStep(step) {
   return data;
 }
 
+export async function updateWorkflowStep(id, updates) {
+  const { data, error } = await supabase
+    .from("workflow_steps")
+    .update(updates)
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("Update workflow step error:", error);
+    throw error;
+  }
+
+  return data;
+}
+
 export async function deleteWorkflowStep(id) {
   const { error } = await supabase
     .from("workflow_steps")

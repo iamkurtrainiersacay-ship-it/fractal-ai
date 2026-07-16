@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Download, Check, Search, Sparkles, ArrowLeft, Cpu, Wrench } from "lucide-react";
 import { getAgents, createAgent } from "../../../services/agentService";
 import { agentTemplates, agentCategories } from "../data/agentTemplates";
@@ -33,16 +34,22 @@ export default function AgentMarketplace() {
     setInstalling(template.template_id);
 
     try {
+      const session = JSON.parse(localStorage.getItem("nexus_user") || "{}");
+      const userId = session?.user?.id || session?.id;
       await createAgent({
         name: template.name,
         role: template.role,
         model: template.model,
         system_prompt: template.system_prompt,
-        status: "active"
+        description: template.description,
+        status: "active",
+        created_by: userId || null
       });
       await loadInstalled();
+      toast.success(`${template.name} installed!`);
     } catch (err) {
       console.error("Install agent error:", err);
+      toast.error("Failed to install agent.");
     } finally {
       setInstalling(null);
     }
