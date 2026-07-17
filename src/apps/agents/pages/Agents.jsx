@@ -14,6 +14,7 @@ import {
   deleteAgentMemory
 } from "../services/agentMemoryService";
 import { getActivityLogsByAgent } from "../../../services/activityService";
+import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
 
 const MODELS = [
   { value: "gpt-4.1-mini", label: "GPT-4.1 Mini — Fast & efficient" },
@@ -236,6 +237,8 @@ function LogEntry({ log }) {
 
 export default function Agents() {
   const navigate = useNavigate();
+  const { workspace } = useWorkspace();
+  const workspaceId = workspace?.id;
   const [agents, setAgents] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [memory, setMemory] = useState([]);
@@ -249,7 +252,7 @@ export default function Agents() {
 
   async function loadAgents() {
     try {
-      const data = await getAgents();
+      const data = await getAgents(workspaceId);
       setAgents(data || []);
     } catch {
       setAgents([]);
@@ -259,7 +262,7 @@ export default function Agents() {
   }
 
   async function loadMemory(agentId) {
-    const data = await getAgentMemory(agentId);
+    const data = await getAgentMemory(agentId, workspaceId);
     setMemory(data || []);
   }
 
@@ -273,7 +276,7 @@ export default function Agents() {
     }
   }
 
-  useEffect(() => { loadAgents(); }, []);
+  useEffect(() => { loadAgents(); }, [workspaceId]);
 
   async function selectAgent(agent) {
     setSelectedAgent(agent);
@@ -291,7 +294,11 @@ export default function Agents() {
 
   async function addMemory() {
     if (!selectedAgent || !memoryText.trim()) return;
-    await createAgentMemory({ agent_id: selectedAgent.id, memory: memoryText });
+    await createAgentMemory({
+      agent_id: selectedAgent.id,
+      workspace_id: workspaceId !== "default" ? workspaceId : null,
+      memory: memoryText
+    });
     setMemoryText("");
     await loadMemory(selectedAgent.id);
   }
@@ -304,7 +311,7 @@ export default function Agents() {
   async function uninstallAgent() {
     if (!selectedAgent) return;
     if (!window.confirm(`Remove "${selectedAgent.name}"? This cannot be undone.`)) return;
-    await deleteAgent(selectedAgent.id);
+    await deleteAgent(selectedAgent.id, workspaceId);
     setSelectedAgent(null);
     setMemory([]);
     toast.success("Agent removed.");
@@ -323,7 +330,8 @@ export default function Agents() {
         model: selectedAgent.model,
         system_prompt: selectedAgent.system_prompt,
         status: "draft",
-        created_by: userId || null
+        created_by: userId || null,
+        workspace_id: workspaceId !== "default" ? workspaceId : null
       });
       toast.success("Agent cloned — opening editor...");
       await loadAgents();
@@ -340,7 +348,7 @@ export default function Agents() {
   async function handleSave(form) {
     try {
       if (editingAgent?.id) {
-        const [updated] = await updateAgent(editingAgent.id, form);
+        const [updated] = await updateAgent(editingAgent.id, form, workspaceId);
         setSelectedAgent(updated);
         toast.success("Agent updated.");
         setSlideOpen(false);
@@ -348,7 +356,11 @@ export default function Agents() {
       } else {
         const session = JSON.parse(localStorage.getItem("nexus_user") || "{}");
         const userId = session?.user?.id || session?.id;
-        const [newAgent] = await createAgent({ ...form, created_by: userId || null });
+        const [newAgent] = await createAgent({
+          ...form,
+          created_by: userId || null,
+          workspace_id: workspaceId !== "default" ? workspaceId : null
+        });
         toast.success("Agent created! Opening chat...");
         setSlideOpen(false);
         await loadAgents();

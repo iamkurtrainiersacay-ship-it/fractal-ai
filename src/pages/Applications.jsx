@@ -19,15 +19,15 @@ const APPS = [
     statLabel: "agents"
   },
   {
-    title: "Agent Marketplace",
-    description: "Install pre-built agents for sales, marketing, research, and ops.",
+    title: "Executive Advisors",
+    description: "Curated CEO, CFO, CIO, and other C-suite advisors, plus specialists for every business function.",
     icon: Sparkles,
     route: "/marketplace",
     color: "#a855f7",
     glow: "rgba(168,85,247,0.25)",
     statTable: null,
-    statLabel: "templates",
-    staticStat: "20+"
+    statLabel: "advisors & agents",
+    staticStat: "20"
   },
   {
     title: "Knowledge Base",

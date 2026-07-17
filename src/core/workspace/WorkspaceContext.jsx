@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getWorkspaces } from "../../services/workspaceService";
+import { getWorkspaces, WORKSPACE_STORAGE_KEY } from "../../services/workspaceService";
 
 const WorkspaceContext = createContext();
 
-const STORAGE_KEY = "nexus_workspace_id";
+const STORAGE_KEY = WORKSPACE_STORAGE_KEY;
 const OLD_STORAGE_KEY = "fractal_workspace_id";
 
 const fallbackWorkspace = {

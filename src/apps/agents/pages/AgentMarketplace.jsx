@@ -1,24 +1,35 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Download, Check, Search, Sparkles, ArrowLeft, Cpu, Wrench } from "lucide-react";
+import { Download, Check, Search, Sparkles, ArrowLeft, Cpu, Wrench, Users } from "lucide-react";
 import { getAgents, createAgent } from "../../../services/agentService";
-import { agentTemplates, agentCategories } from "../data/agentTemplates";
+import {
+  agentTemplates,
+  agentCategories,
+  agentCategoryGroups,
+  executiveAdvisorTemplateIds
+} from "../data/agentTemplates";
+import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
+
+const categoryLabels = Object.fromEntries(agentCategories.map((c) => [c.id, c.label]));
 
 export default function AgentMarketplace() {
   const navigate = useNavigate();
+  const { workspace } = useWorkspace();
+  const workspaceId = workspace?.id;
   const [installed, setInstalled] = useState([]);
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [installing, setInstalling] = useState(null);
+  const [installingTeam, setInstallingTeam] = useState(false);
 
   useEffect(() => {
     loadInstalled();
-  }, []);
+  }, [workspaceId]);
 
   async function loadInstalled() {
     try {
-      const agents = await getAgents();
+      const agents = await getAgents(workspaceId);
       setInstalled((agents || []).map((a) => a.name.toLowerCase()));
     } catch {
       setInstalled([]);
@@ -29,6 +40,19 @@ export default function AgentMarketplace() {
     return installed.includes(template.name.toLowerCase());
   }
 
+  function buildAgentPayload(template, userId) {
+    return {
+      name: template.name,
+      role: template.role,
+      model: template.model,
+      system_prompt: template.system_prompt,
+      description: template.description,
+      status: "active",
+      created_by: userId || null,
+      workspace_id: workspaceId !== "default" ? workspaceId : null
+    };
+  }
+
   async function handleInstall(template) {
     if (isInstalled(template)) return;
     setInstalling(template.template_id);
@@ -36,15 +60,7 @@ export default function AgentMarketplace() {
     try {
       const session = JSON.parse(localStorage.getItem("nexus_user") || "{}");
       const userId = session?.user?.id || session?.id;
-      await createAgent({
-        name: template.name,
-        role: template.role,
-        model: template.model,
-        system_prompt: template.system_prompt,
-        description: template.description,
-        status: "active",
-        created_by: userId || null
-      });
+      await createAgent(buildAgentPayload(template, userId));
       await loadInstalled();
       toast.success(`${template.name} installed!`);
     } catch (err) {
@@ -54,6 +70,37 @@ export default function AgentMarketplace() {
       setInstalling(null);
     }
   }
+
+  async function handleInstallExecutiveTeam() {
+    setInstallingTeam(true);
+    try {
+      const session = JSON.parse(localStorage.getItem("nexus_user") || "{}");
+      const userId = session?.user?.id || session?.id;
+      const toInstall = agentTemplates.filter(
+        (t) => executiveAdvisorTemplateIds.includes(t.template_id) && !isInstalled(t)
+      );
+
+      for (const template of toInstall) {
+        await createAgent(buildAgentPayload(template, userId));
+      }
+
+      await loadInstalled();
+      toast.success(
+        toInstall.length > 0
+          ? `Executive Team installed (${toInstall.length} advisor${toInstall.length === 1 ? "" : "s"}).`
+          : "Executive Team already installed."
+      );
+    } catch (err) {
+      console.error("Install executive team error:", err);
+      toast.error("Failed to install the Executive Team.");
+    } finally {
+      setInstallingTeam(false);
+    }
+  }
+
+  const executiveTeamInstalled = agentTemplates
+    .filter((t) => executiveAdvisorTemplateIds.includes(t.template_id))
+    .every(isInstalled);
 
   const filtered = agentTemplates.filter((t) => {
     const matchCat = category === "all" || t.category === category;
@@ -69,9 +116,9 @@ export default function AgentMarketplace() {
     <div className="marketplace-page">
       <section className="mp-hero">
         <div>
-          <p className="sd-eyebrow">Agent Marketplace</p>
-          <h1 className="mp-title">Install AI Agents</h1>
-          <p className="muted">Pre-built agents for every business function. Install in one click.</p>
+          <p className="sd-eyebrow">Executive Advisors</p>
+          <h1 className="mp-title">Meet Your AI Executive Team</h1>
+          <p className="muted">Curated C-suite advisors, plus specialists for every business function. Install in one click.</p>
         </div>
 
         <button className="secondary-btn" onClick={() => navigate("/agents")}>
@@ -83,23 +130,52 @@ export default function AgentMarketplace() {
         <div className="mp-search">
           <Search size={16} />
           <input
-            placeholder="Search agents..."
+            placeholder="Search advisors and agents..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="mp-categories">
-          {agentCategories.map((cat) => (
-            <button
-              key={cat.id}
-              className={category === cat.id ? "mp-cat active" : "mp-cat"}
-              onClick={() => setCategory(cat.id)}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <button
+          className={executiveTeamInstalled ? "mp-install-btn installed" : "primary-btn"}
+          onClick={handleInstallExecutiveTeam}
+          disabled={installingTeam || executiveTeamInstalled}
+        >
+          {installingTeam ? (
+            <><div className="auth-spinner" /> Installing Executive Team...</>
+          ) : executiveTeamInstalled ? (
+            <><Check size={16} /> Executive Team Installed</>
+          ) : (
+            <><Users size={16} /> Install Executive Team</>
+          )}
+        </button>
+
+        <div
+          className={category === "all" ? "mp-cat active" : "mp-cat"}
+          role="button"
+          tabIndex={0}
+          onClick={() => setCategory("all")}
+          style={{ display: "inline-block", width: "fit-content" }}
+        >
+          All Advisors
         </div>
+
+        {agentCategoryGroups.map((group) => (
+          <div key={group.id} className="mp-cat-group">
+            <p className="mp-cat-group-label">{group.label}</p>
+            <div className="mp-categories">
+              {group.categories.map((catId) => (
+                <button
+                  key={catId}
+                  className={category === catId ? "mp-cat active" : "mp-cat"}
+                  onClick={() => setCategory(catId)}
+                >
+                  {categoryLabels[catId] || catId}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="mp-grid">
@@ -113,7 +189,7 @@ export default function AgentMarketplace() {
                 <div className="mp-card-icon">
                   <Sparkles size={20} />
                 </div>
-                <div className="mp-card-cat">{template.category}</div>
+                <div className="mp-card-cat">{categoryLabels[template.category] || template.category}</div>
               </div>
 
               <h3>{template.name}</h3>
@@ -131,6 +207,14 @@ export default function AgentMarketplace() {
                 ))}
               </div>
 
+              {template.tools?.length > 0 && (
+                <div className="mp-card-skills mp-card-tools">
+                  {template.tools.map((tool) => (
+                    <span key={tool} className="mp-skill mp-tool">{tool}</span>
+                  ))}
+                </div>
+              )}
+
               <button
                 className={alreadyInstalled ? "mp-install-btn installed" : "mp-install-btn"}
                 onClick={() => handleInstall(template)}
@@ -141,7 +225,7 @@ export default function AgentMarketplace() {
                 ) : alreadyInstalled ? (
                   <><Check size={16} /> Installed</>
                 ) : (
-                  <><Download size={16} /> Install Agent</>
+                  <><Download size={16} /> Install Advisor</>
                 )}
               </button>
             </div>

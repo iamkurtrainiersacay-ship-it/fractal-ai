@@ -1,10 +1,23 @@
-﻿import { supabase } from "../core/database/supabase";
+import { supabase } from "../core/database/supabase";
 
-export async function getAgents() {
-  const { data, error } = await supabase
+// The WorkspaceContext fallback used when no workspace row exists yet is a
+// synthetic "default" id, not a real uuid — filtering on it would error at
+// the DB level, so treat it the same as "no workspace selected".
+function isRealWorkspaceId(workspaceId) {
+  return Boolean(workspaceId) && workspaceId !== "default";
+}
+
+export async function getAgents(workspaceId) {
+  let query = supabase
     .from("agents")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (isRealWorkspaceId(workspaceId)) {
+    query = query.eq("workspace_id", workspaceId);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 
@@ -22,23 +35,34 @@ export async function createAgent(agent) {
   return data;
 }
 
-export async function updateAgent(id, updates) {
-  const { data, error } = await supabase
+export async function updateAgent(id, updates, workspaceId) {
+  let query = supabase
     .from("agents")
     .update(updates)
-    .eq("id", id)
-    .select();
+    .eq("id", id);
+
+  if (isRealWorkspaceId(workspaceId)) {
+    query = query.eq("workspace_id", workspaceId);
+  }
+
+  const { data, error } = await query.select();
 
   if (error) throw error;
 
   return data;
 }
 
-export async function deleteAgent(id) {
-  const { error } = await supabase
+export async function deleteAgent(id, workspaceId) {
+  let query = supabase
     .from("agents")
     .delete()
     .eq("id", id);
+
+  if (isRealWorkspaceId(workspaceId)) {
+    query = query.eq("workspace_id", workspaceId);
+  }
+
+  const { error } = await query;
 
   if (error) throw error;
 }

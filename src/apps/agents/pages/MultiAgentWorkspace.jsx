@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Plus, X, Save, Bot, Users } from "lucide-react";
 import { getAgents, createAgent } from "../../../services/agentService";
 import { runAgent } from "../../../services/openaiService";
+import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
 
 const MODELS = [
   { value: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
@@ -19,7 +20,7 @@ const EMPTY_FORM = {
 
 // ─── Quick-create slide-over ──────────────────────────────────────────────────
 
-function QuickCreateSlideOver({ open, onClose, onCreated }) {
+function QuickCreateSlideOver({ open, onClose, onCreated, workspaceId }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
@@ -34,7 +35,11 @@ function QuickCreateSlideOver({ open, onClose, onCreated }) {
     try {
       const session = JSON.parse(localStorage.getItem("nexus_user") || "{}");
       const userId = session?.user?.id || session?.id;
-      const [newAgent] = await createAgent({ ...form, created_by: userId || null });
+      const [newAgent] = await createAgent({
+        ...form,
+        created_by: userId || null,
+        workspace_id: workspaceId !== "default" ? workspaceId : null
+      });
       toast.success(`${newAgent.name} created and ready!`);
       onCreated(newAgent);
       onClose();
@@ -132,6 +137,8 @@ function QuickCreateSlideOver({ open, onClose, onCreated }) {
 
 export default function MultiAgentWorkspace() {
   const navigate = useNavigate();
+  const { workspace } = useWorkspace();
+  const workspaceId = workspace?.id;
   const [agents, setAgents] = useState([]);
   const [selectedAgents, setSelectedAgents] = useState([]);
   const [prompt, setPrompt] = useState("");
@@ -140,11 +147,11 @@ export default function MultiAgentWorkspace() {
   const [showCreate, setShowCreate] = useState(false);
 
   async function loadAgents() {
-    const data = await getAgents();
+    const data = await getAgents(workspaceId);
     setAgents(data || []);
   }
 
-  useEffect(() => { loadAgents(); }, []);
+  useEffect(() => { loadAgents(); }, [workspaceId]);
 
   function toggleAgent(agentId) {
     setSelectedAgents(prev =>
@@ -206,6 +213,7 @@ Respond as ${agent.name}. Add useful output for the next agent in the chain.
         open={showCreate}
         onClose={() => setShowCreate(false)}
         onCreated={handleAgentCreated}
+        workspaceId={workspaceId}
       />
 
       <div className="multi-agent-page">

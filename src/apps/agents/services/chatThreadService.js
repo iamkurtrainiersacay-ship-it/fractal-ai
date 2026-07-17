@@ -1,12 +1,17 @@
 import { supabase } from "../../../core/database/supabase";
 
-export async function getChatThreads(agentId) {
-  const { data, error } = await supabase
+export async function getChatThreads(agentId, workspaceId) {
+  let query = supabase
     .from("agent_chat_threads")
     .select("*")
     .eq("agent_id", agentId)
     .order("created_at", { ascending: false });
 
+  if (workspaceId && workspaceId !== "default") {
+    query = query.eq("workspace_id", workspaceId);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data || [];
 }

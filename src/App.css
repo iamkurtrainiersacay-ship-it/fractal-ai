@@ -3595,6 +3595,21 @@ pre,
   outline: none;
 }
 
+.mp-cat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mp-cat-group-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .mp-categories {
   display: flex;
   gap: 4px;
@@ -3726,6 +3741,12 @@ pre,
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 500;
+}
+
+.mp-tool {
+  background: var(--bg-inset);
+  color: var(--text-muted);
+  border-color: var(--border);
 }
 
 .mp-install-btn {

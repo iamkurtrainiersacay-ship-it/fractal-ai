@@ -6,6 +6,7 @@ import { Image, X, Upload, Send, Plus, Brain } from "lucide-react";
 import { getAgents } from "../../../services/agentService";
 import { runAgent } from "../../../services/openaiService";
 import { getWorkspaces, getClients } from "../../../services/workspaceService";
+import { useWorkspace } from "../../../core/workspace/WorkspaceContext";
 import {
   getChatThreads,
   createChatThread,
@@ -99,6 +100,8 @@ function DragOverlay({ visible }) {
 
 export default function AgentRunner() {
   const location = useLocation();
+  const { workspace: activeWorkspace } = useWorkspace();
+  const activeWorkspaceId = activeWorkspace?.id;
   const [agents, setAgents] = useState([]);
   const [workspaces, setWorkspaces] = useState([]);
   const [clients, setClients] = useState([]);
@@ -129,7 +132,7 @@ export default function AgentRunner() {
   async function loadBaseData() {
     try {
       const [agentData, workspaceData] = await Promise.all([
-        getAgents(),
+        getAgents(activeWorkspaceId),
         getWorkspaces()
       ]);
 
@@ -137,11 +140,22 @@ export default function AgentRunner() {
       setWorkspaces(workspaceData || []);
 
       const preselectedId = location.state?.agent?.id;
+      // The preselected agent (passed via router state) must belong to the
+      // active workspace — otherwise silently fall back rather than opening
+      // a chat against another workspace's agent.
+      const preselectedBelongsToWorkspace =
+        preselectedId && agentData?.some((a) => a.id === preselectedId);
+
+      if (preselectedId && !preselectedBelongsToWorkspace) {
+        toast.error("That agent isn't available in the current workspace.");
+      }
 
       if (agentData?.length) {
-        const id = preselectedId || agentData[0].id;
+        const id = preselectedBelongsToWorkspace ? preselectedId : agentData[0].id;
         setSelectedAgentId(id);
         loadThreads(id);
+      } else {
+        setSelectedAgentId("");
       }
 
       if (workspaceData?.length && !selectedWorkspaceId) {
@@ -160,7 +174,7 @@ export default function AgentRunner() {
 
   async function loadThreads(agentId) {
     if (!agentId) return;
-    const data = await getChatThreads(agentId).catch(() => []);
+    const data = await getChatThreads(agentId, activeWorkspaceId).catch(() => []);
     setThreads(data || []);
   }
 
@@ -338,7 +352,7 @@ export default function AgentRunner() {
 
   // ── Effects ───────────────────────────────────────────────────────────────────
 
-  useEffect(() => { loadBaseData(); }, []);
+  useEffect(() => { loadBaseData(); }, [activeWorkspaceId]);
   useEffect(() => { if (selectedWorkspaceId) loadClients(selectedWorkspaceId); }, [selectedWorkspaceId]);
   useEffect(() => {
     if (selectedAgentId) {

@@ -1,5 +1,11 @@
 import { supabase } from "../core/database/supabase";
 
+export const WORKSPACE_STORAGE_KEY = "nexus_workspace_id";
+
+export function getStoredWorkspaceId() {
+  return localStorage.getItem(WORKSPACE_STORAGE_KEY);
+}
+
 export async function getWorkspaces() {
   const { data, error } = await supabase
     .from("workspaces")

@@ -6,6 +6,7 @@ import {
   BarChart3, Plug, Settings, Home, LayoutGrid, Loader
 } from "lucide-react";
 import { supabase } from "../../core/database/supabase";
+import { useWorkspace } from "../../core/workspace/WorkspaceContext";
 
 const NAV_COMMANDS = [
   { label: "Dashboard",            path: "/",                    icon: Home },
@@ -28,10 +29,14 @@ function useDebounce(value, delay) {
   return debounced;
 }
 
-async function searchSupabase(q) {
+async function searchSupabase(q, workspaceId) {
   const term = `%${q}%`;
+  let agentQuery = supabase.from("agents").select("id,name,role,status").ilike("name", term).limit(5);
+  if (workspaceId && workspaceId !== "default") {
+    agentQuery = agentQuery.eq("workspace_id", workspaceId);
+  }
   const [agentRes, knowledgeRes, workflowRes] = await Promise.all([
-    supabase.from("agents").select("id,name,role,status").ilike("name", term).limit(5),
+    agentQuery,
     supabase.from("knowledge").select("id,title,type").ilike("title", term).limit(5),
     supabase.from("workflows").select("id,name,description").ilike("name", term).limit(5)
   ]);
@@ -52,6 +57,8 @@ function ItemIcon({ item }) {
 
 export default function CommandCenter() {
   const navigate = useNavigate();
+  const { workspace } = useWorkspace();
+  const workspaceId = workspace?.id;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
@@ -83,11 +90,11 @@ export default function CommandCenter() {
       return;
     }
     setSearching(true);
-    searchSupabase(debouncedQuery)
+    searchSupabase(debouncedQuery, workspaceId)
       .then(setResults)
       .catch(() => setResults(null))
       .finally(() => setSearching(false));
-  }, [debouncedQuery]);
+  }, [debouncedQuery, workspaceId]);
 
   const navFiltered = NAV_COMMANDS.filter(c =>
     c.label.toLowerCase().includes(query.toLowerCase())

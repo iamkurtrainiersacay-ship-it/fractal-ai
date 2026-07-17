@@ -1,11 +1,17 @@
 import { supabase } from "../../../core/database/supabase";
 
-export async function getAgentMemory(agentId) {
-  const { data, error } = await supabase
+export async function getAgentMemory(agentId, workspaceId) {
+  let query = supabase
     .from("agent_memory")
     .select("*")
     .eq("agent_id", agentId)
     .order("created_at", { ascending: false });
+
+  if (workspaceId && workspaceId !== "default") {
+    query = query.eq("workspace_id", workspaceId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Get agent memory error:", error);
