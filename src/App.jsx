@@ -21,6 +21,7 @@ import AgentRunner from "./apps/agents/pages/AgentRunner";
 import MultiAgentWorkspace from "./apps/agents/pages/MultiAgentWorkspace";
 import AgentMarketplace from "./apps/agents/pages/AgentMarketplace";
 import ContentAssets from "./apps/content/pages/ContentAssets";
+import Scraper from "./apps/scraper/pages/Scraper";
 import Admin from "./apps/admin/pages/Admin";
 import FractalCommand from "./apps/command/pages/FractalCommand";
 import Applications from "./pages/Applications";
@@ -86,6 +87,7 @@ function ProtectedLayout() {
               <Route path="/multi-agent" element={<MultiAgentWorkspace />} />
               <Route path="/marketplace" element={<AgentMarketplace />} />
               <Route path="/content-assets" element={<ContentAssets />} />
+              <Route path="/scraper" element={<Scraper />} />
               <Route path="/command" element={<FractalCommand />} />
               {isSuperAdmin && <Route path="/admin" element={<Admin />} />}
             </Routes>

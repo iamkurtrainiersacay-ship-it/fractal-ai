@@ -4,8 +4,9 @@ import { SkeletonPage } from "../../../shared/components/Skeleton";
 import toast from "react-hot-toast";
 import {
   Plus, Trash2, Play, ChevronDown, ChevronRight,
-  Copy, Workflow as WorkflowIcon, Bot
+  Copy, Workflow as WorkflowIcon, Bot, Globe
 } from "lucide-react";
+import { listRobots } from "../../../services/maxunService";
 import {
   getWorkflows,
   createWorkflow,
@@ -26,9 +27,12 @@ import {
 
 // ─── Step card (draggable) ─────────────────────────────────────────────────────
 
-function StepCard({ step, agents, onRemove, onUpdate }) {
+function StepCard({ step, agents, robots, onRemove, onUpdate }) {
   const [expanded, setExpanded] = useState(false);
-  const agentName = agents.find(a => a.id === step.agent_id)?.name || "No agent";
+  const isMaxun = step.agent_id?.startsWith("maxun:");
+  const agentName = isMaxun
+    ? (robots?.find(r => r.id === step.agent_id.replace("maxun:", ""))?.name || "Maxun Robot")
+    : (agents.find(a => a.id === step.agent_id)?.name || "No agent");
 
   return (
     <Reorder.Item
@@ -48,7 +52,10 @@ function StepCard({ step, agents, onRemove, onUpdate }) {
             <span className="wf-step-num">{step.step_order}</span>
             <div>
               <strong className="wf-step-name">{step.name || "Unnamed step"}</strong>
-              <span className="wf-step-agent"><Bot size={11} /> {agentName}</span>
+              <span className="wf-step-agent">
+                {isMaxun ? <Globe size={11} style={{ color: "#f97316" }} /> : <Bot size={11} />}
+                {agentName}
+              </span>
             </div>
           </div>
           <div className="wf-step-right">
@@ -72,15 +79,41 @@ function StepCard({ step, agents, onRemove, onUpdate }) {
               transition={{ duration: 0.2 }}
             >
               <div className="wf-step-field">
-                <label>Agent</label>
+                <label>Step Type</label>
                 <select
-                  value={step.agent_id || ""}
-                  onChange={(e) => onUpdate(step.id, "agent_id", e.target.value)}
+                  value={isMaxun ? "maxun" : "agent"}
+                  onChange={(e) => {
+                    if (e.target.value === "maxun") onUpdate(step.id, "agent_id", "maxun:");
+                    else onUpdate(step.id, "agent_id", "");
+                  }}
                 >
-                  <option value="">Select agent</option>
-                  {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  <option value="agent">AI Agent</option>
+                  <option value="maxun">Maxun Scrape</option>
                 </select>
               </div>
+              {isMaxun ? (
+                <div className="wf-step-field">
+                  <label>Robot</label>
+                  <select
+                    value={step.agent_id?.replace("maxun:", "") || ""}
+                    onChange={(e) => onUpdate(step.id, "agent_id", `maxun:${e.target.value}`)}
+                  >
+                    <option value="">Select robot</option>
+                    {(robots || []).map(r => <option key={r.id} value={r.id}>{r.name || `Robot ${r.id}`}</option>)}
+                  </select>
+                </div>
+              ) : (
+                <div className="wf-step-field">
+                  <label>Agent</label>
+                  <select
+                    value={step.agent_id || ""}
+                    onChange={(e) => onUpdate(step.id, "agent_id", e.target.value)}
+                  >
+                    <option value="">Select agent</option>
+                    {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+              )}
               <div className="wf-step-field">
                 <label>Step Name</label>
                 <input
@@ -109,26 +142,36 @@ function StepCard({ step, agents, onRemove, onUpdate }) {
 // ─── Workflow card ────────────────────────────────────────────────────────────
 
 function WorkflowCard({
-  workflow, steps, agents,
+  workflow, steps, agents, robots,
   onDelete, onRun, onAddStep, onRemoveStep, onUpdateStep,
   running, workflowInput, onInputChange
 }) {
   const [showBuilder, setShowBuilder] = useState(false);
-  const [newStep, setNewStep] = useState({ name: "", agent_id: "", instruction: "" });
+  const [newStep, setNewStep] = useState({ name: "", agent_id: "", instruction: "", step_type: "agent" });
   const [addingStep, setAddingStep] = useState(false);
 
   async function handleAddStep() {
-    if (!newStep.name || !newStep.agent_id || !newStep.instruction) {
-      toast.error("Step name, agent, and instruction are required.");
+    const isMaxunStep = newStep.step_type === "maxun";
+    if (!newStep.name) { toast.error("Step name is required."); return; }
+    if (!isMaxunStep && (!newStep.agent_id || !newStep.instruction)) {
+      toast.error("Agent and instruction are required for AI Agent steps.");
+      return;
+    }
+    if (isMaxunStep && !newStep.agent_id) {
+      toast.error("Select a Maxun robot.");
       return;
     }
     setAddingStep(true);
     try {
-      await onAddStep(workflow.id, {
-        ...newStep,
+      const isMaxunStep = newStep.step_type === "maxun";
+      const stepPayload = {
+        name: newStep.name,
+        instruction: newStep.instruction || `Maxun scrape: ${newStep.agent_id}`,
+        agent_id: isMaxunStep ? `maxun:${newStep.agent_id}` : newStep.agent_id,
         step_order: steps.length + 1
-      });
-      setNewStep({ name: "", agent_id: "", instruction: "" });
+      };
+      await onAddStep(workflow.id, stepPayload);
+      setNewStep({ name: "", agent_id: "", instruction: "", step_type: "agent" });
     } finally {
       setAddingStep(false);
     }
@@ -193,6 +236,7 @@ function WorkflowCard({
                           key={step.id}
                           step={step}
                           agents={agents}
+                          robots={robots}
                           onRemove={onRemoveStep}
                           onUpdate={onUpdateStep}
                         />
@@ -211,20 +255,40 @@ function WorkflowCard({
                     onChange={(e) => setNewStep(s => ({ ...s, name: e.target.value }))}
                   />
                   <select
-                    value={newStep.agent_id}
-                    onChange={(e) => setNewStep(s => ({ ...s, agent_id: e.target.value }))}
+                    value={newStep.step_type}
+                    onChange={(e) => setNewStep(s => ({ ...s, step_type: e.target.value, agent_id: "" }))}
+                    style={{ minWidth: "140px" }}
                   >
-                    <option value="">Select agent *</option>
-                    {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    <option value="agent">AI Agent</option>
+                    <option value="maxun">Maxun Scrape</option>
                   </select>
+                  {newStep.step_type === "maxun" ? (
+                    <select
+                      value={newStep.agent_id}
+                      onChange={(e) => setNewStep(s => ({ ...s, agent_id: e.target.value }))}
+                    >
+                      <option value="">Select robot *</option>
+                      {(robots || []).map(r => <option key={r.id} value={r.id}>{r.name || `Robot ${r.id}`}</option>)}
+                    </select>
+                  ) : (
+                    <select
+                      value={newStep.agent_id}
+                      onChange={(e) => setNewStep(s => ({ ...s, agent_id: e.target.value }))}
+                    >
+                      <option value="">Select agent *</option>
+                      {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                  )}
                 </div>
-                <textarea
-                  placeholder="What should this agent do? *"
-                  value={newStep.instruction}
-                  onChange={(e) => setNewStep(s => ({ ...s, instruction: e.target.value }))}
-                  rows={2}
-                  style={{ width: "100%", marginTop: "8px" }}
-                />
+                {newStep.step_type !== "maxun" && (
+                  <textarea
+                    placeholder="What should this agent do? *"
+                    value={newStep.instruction}
+                    onChange={(e) => setNewStep(s => ({ ...s, instruction: e.target.value }))}
+                    rows={2}
+                    style={{ width: "100%", marginTop: "8px" }}
+                  />
+                )}
                 <motion.button
                   className="primary-btn"
                   style={{ marginTop: "10px" }}
@@ -274,6 +338,7 @@ export default function Workflows() {
   const [workflows, setWorkflows] = useState([]);
   const [workflowRuns, setWorkflowRuns] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [robots, setRobots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stepsByWorkflow, setStepsByWorkflow] = useState({});
   const [running, setRunning] = useState(null);
@@ -292,6 +357,10 @@ export default function Workflows() {
       setWorkflows(workflowData || []);
       setWorkflowRuns(runData || []);
       setAgents(agentData || []);
+      // Load Maxun robots in background (non-blocking — fails gracefully if not connected)
+      listRobots()
+        .then((data) => setRobots(Array.isArray(data) ? data : (data?.robots || data?.data || [])))
+        .catch(() => {});
 
       const stepMap = {};
       await Promise.all(
@@ -462,6 +531,7 @@ export default function Workflows() {
                 workflow={wf}
                 steps={stepsByWorkflow[wf.id] || []}
                 agents={agents}
+                robots={robots}
                 onDelete={removeWorkflow}
                 onRun={runWorkflow}
                 onAddStep={addStep}

@@ -3,7 +3,7 @@ import { useDropzone } from "react-dropzone";
 import JSZip from "jszip";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, FileText, Link, Upload, X, ChevronDown, ChevronUp, Trash2, Plus } from "lucide-react";
+import { Search, FileText, Link, Upload, X, ChevronDown, ChevronUp, Trash2, Plus, Globe, Play } from "lucide-react";
 import {
   getKnowledge,
   createKnowledge,
@@ -11,6 +11,7 @@ import {
 } from "../../../services/knowledgeService";
 import { getAgents } from "../../../services/agentService";
 import { SkeletonPage } from "../../../shared/components/Skeleton";
+import { listRobots, runRobot, listRuns, isMaxunConnected } from "../../../services/maxunService";
 
 const PAGE_SIZE = 12;
 const TYPES = ["SOP", "Prompt", "System", "Workflow", "Client", "Research"];
@@ -183,6 +184,116 @@ function URLInput({ onExtracted }) {
   );
 }
 
+// ─── Maxun scrape tab ─────────────────────────────────────────────────────────
+
+function MaxunScrapeTab({ onExtracted }) {
+  const [connected, setConnected] = useState(null);
+  const [robots, setRobots] = useState([]);
+  const [selectedRobot, setSelectedRobot] = useState("");
+  const [running, setRunning] = useState(false);
+  const [runs, setRuns] = useState([]);
+  const [selectedRun, setSelectedRun] = useState("");
+
+  useEffect(() => {
+    isMaxunConnected().then((ok) => {
+      setConnected(ok);
+      if (ok) {
+        listRobots()
+          .then((data) => setRobots(Array.isArray(data) ? data : (data?.robots || data?.data || [])))
+          .catch(() => setRobots([]));
+      }
+    });
+  }, []);
+
+  async function handleRun() {
+    if (!selectedRobot) return;
+    setRunning(true);
+    try {
+      await runRobot(selectedRobot);
+      toast("Robot started! Fetching latest run...", { icon: "⚙️" });
+      await new Promise((r) => setTimeout(r, 3000));
+      const data = await listRuns(selectedRobot);
+      const runList = Array.isArray(data) ? data : (data?.runs || data?.data || []);
+      setRuns(runList.slice(0, 5));
+      if (runList.length > 0) setSelectedRun(runList[0].id);
+      toast.success("Scrape complete — pick a run to import.");
+    } catch (err) {
+      toast.error(err.message || "Scrape failed.");
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function handleImport() {
+    const run = runs.find((r) => r.id === selectedRun || r.id === Number(selectedRun));
+    if (!run) return;
+    const robot = robots.find((r) => r.id === selectedRobot);
+    const data = run.capturedData || run.data || run.result;
+    const content = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    onExtracted(`${robot?.name || "Maxun Scrape"} — ${new Date().toLocaleDateString()}`, content);
+  }
+
+  if (connected === false) {
+    return (
+      <div className="maxun-kb-banner">
+        <Globe size={16} style={{ color: "#f97316" }} />
+        <span>Maxun not connected. Go to <strong>Integrations → Maxun</strong> and paste your ngrok URL.</span>
+      </div>
+    );
+  }
+
+  if (connected === null) return <p className="muted" style={{ padding: "16px 0" }}>Checking Maxun connection...</p>;
+
+  return (
+    <div className="maxun-kb-panel">
+      <div className="maxun-kb-row">
+        <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)" }}>Robot</label>
+        <select value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)} style={{ flex: 1 }}>
+          <option value="">Select a robot...</option>
+          {robots.map((r) => (
+            <option key={r.id} value={r.id}>{r.name || `Robot ${r.id}`}</option>
+          ))}
+        </select>
+        <motion.button
+          className="primary-btn"
+          onClick={handleRun}
+          disabled={!selectedRobot || running}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {running ? "Running..." : <><Play size={13} /> Run Scrape</>}
+        </motion.button>
+      </div>
+
+      {runs.length > 0 && (
+        <div className="maxun-kb-row" style={{ marginTop: "10px" }}>
+          <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)" }}>Run Result</label>
+          <select value={selectedRun} onChange={(e) => setSelectedRun(e.target.value)} style={{ flex: 1 }}>
+            {runs.map((r) => (
+              <option key={r.id} value={r.id}>
+                Run #{String(r.id).slice(-6)} — {r.status} — {r.createdAt ? new Date(r.createdAt).toLocaleString() : ""}
+              </option>
+            ))}
+          </select>
+          <motion.button
+            className="primary-btn"
+            onClick={handleImport}
+            disabled={!selectedRun}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <FileText size={13} /> Import to Write
+          </motion.button>
+        </div>
+      )}
+
+      <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "10px" }}>
+        Running a robot triggers Maxun to scrape the site. After it finishes, pick the run result and click Import to fill in the knowledge entry.
+      </p>
+    </div>
+  );
+}
+
 // ─── Knowledge card ───────────────────────────────────────────────────────────
 
 function KnowledgeCard({ item, agentName, onDelete }) {
@@ -351,7 +462,8 @@ export default function Knowledge() {
           {[
             { id: "write", icon: Plus, label: "Write" },
             { id: "upload", icon: Upload, label: "Upload File" },
-            { id: "url", icon: Link, label: "From URL" }
+            { id: "url", icon: Link, label: "From URL" },
+            { id: "maxun", icon: Globe, label: "Scrape with Maxun" }
           ].map(({ id, icon: Icon, label }) => (
             <button
               key={id}
@@ -450,6 +562,18 @@ export default function Knowledge() {
               transition={{ duration: 0.18 }}
             >
               <URLInput onExtracted={handleUrlExtracted} />
+            </motion.div>
+          )}
+
+          {addTab === "maxun" && (
+            <motion.div
+              key="maxun"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <MaxunScrapeTab onExtracted={handleFileExtracted} />
             </motion.div>
           )}
         </AnimatePresence>

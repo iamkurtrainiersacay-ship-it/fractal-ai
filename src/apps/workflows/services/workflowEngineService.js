@@ -2,6 +2,7 @@ import { getAgents } from "../../../services/agentService";
 import { runAgent } from "../../../services/openaiService";
 import { createWorkflowRun } from "./workflowRunService";
 import { getWorkflowSteps } from "./workflowStepService";
+import { runRobot, listRuns } from "../../../services/maxunService";
 
 export async function executeWorkflow(workflow, input) {
   const agents = await getAgents();
@@ -39,6 +40,29 @@ Execute this workflow step-by-step and return the final operational output.
     fullOutput = result.output;
   } else {
     for (const step of steps) {
+      // Maxun scrape step — robot ID stored as "maxun:{robotId}"
+      if (step.agent_id?.startsWith("maxun:")) {
+        const robotId = step.agent_id.replace("maxun:", "");
+        try {
+          await runRobot(robotId);
+          await new Promise((r) => setTimeout(r, 4000));
+          const runsData = await listRuns(robotId);
+          const runs = Array.isArray(runsData) ? runsData : (runsData?.runs || runsData?.data || []);
+          const latest = runs[0];
+          const scraped = latest
+            ? (typeof (latest.capturedData || latest.data || latest.result) === "string"
+              ? (latest.capturedData || latest.data || latest.result)
+              : JSON.stringify(latest.capturedData || latest.data || latest.result, null, 2))
+            : "No scraped data returned.";
+          const stepOutput = `[Maxun Scrape — Step ${step.step_order}: ${step.name}]\n${scraped}`;
+          fullOutput += `\n==============================\nSTEP ${step.step_order}: ${step.name}\nTYPE: Maxun Scrape\n==============================\n\n${stepOutput}\n\n`;
+          context = scraped;
+        } catch {
+          context = `[Maxun step failed — ${step.name}]`;
+        }
+        continue;
+      }
+
       const agent =
         agents.find((item) => item.id === step.agent_id) || agents[0];
 

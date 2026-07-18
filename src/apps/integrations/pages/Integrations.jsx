@@ -86,6 +86,18 @@ const INTEGRATIONS = [
     icon: Sparkles,
     color: "#d97706",
     fields: [{ name: "api_key", label: "API Key", secret: true }]
+  },
+  {
+    key: "maxun",
+    name: "Maxun",
+    description: "No-code web scraping robots — extract data from any website into your Knowledge Base.",
+    icon: Globe,
+    color: "#f97316",
+    fields: [
+      { name: "base_url", label: "Maxun URL (ngrok https://)", secret: false },
+      { name: "api_key", label: "API Key (optional)", secret: true }
+    ],
+    setupNote: "Maxun runs on localhost — expose it with: ngrok http 3000"
   }
 ];
 
@@ -240,6 +252,11 @@ export default function Integrations() {
 
               {isEditing ? (
                 <div style={{ display: "grid", gap: "10px" }}>
+                  {integration.setupNote && (
+                    <div style={{ fontSize: "12px", background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: "8px", padding: "10px 12px", color: "var(--text-secondary)" }}>
+                      <strong style={{ color: "#f97316" }}>Setup: </strong>{integration.setupNote}
+                    </div>
+                  )}
                   {integration.fields.map((field) => (
                     <div key={field.name} style={{ display: "grid", gap: "4px" }}>
                       <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)" }}>

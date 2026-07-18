@@ -13,7 +13,8 @@ import {
   Layers,
   ChevronDown,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  Globe
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
@@ -26,6 +27,7 @@ const nav = [
   { name: "AI Agents", path: "/multi-agent", icon: Bot },
   { name: "Knowledge", path: "/knowledge", icon: Brain },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
+  { name: "Web Scraper", path: "/scraper", icon: Globe },
   { name: "Integrations", path: "/integrations", icon: Plug },
   { name: "Workflows", path: "/workflows", icon: Workflow },
   { name: "Settings", path: "/settings", icon: Settings }

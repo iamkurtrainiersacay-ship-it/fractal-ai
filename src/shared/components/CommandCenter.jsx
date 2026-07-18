@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Share2, Bot, Brain, Workflow,
-  BarChart3, Plug, Settings, Home, LayoutGrid, Loader
+  BarChart3, Plug, Settings, Home, LayoutGrid, Loader, Globe
 } from "lucide-react";
 import { supabase } from "../../core/database/supabase";
 import { useWorkspace } from "../../core/workspace/WorkspaceContext";
@@ -17,7 +17,8 @@ const NAV_COMMANDS = [
   { label: "Workflows",            path: "/workflows",           icon: Workflow },
   { label: "Analytics",            path: "/analytics",           icon: BarChart3 },
   { label: "Integrations",         path: "/integrations",        icon: Plug },
-  { label: "Settings",             path: "/settings",            icon: Settings }
+  { label: "Settings",             path: "/settings",            icon: Settings },
+  { label: "Web Scraper",          path: "/scraper",             icon: Globe }
 ];
 
 function useDebounce(value, delay) {

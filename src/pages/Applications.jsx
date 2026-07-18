@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Brain, Share2, Bot, BarChart3, Plug, Workflow,
-  Sparkles, FolderOpen, ArrowRight, Layers
+  Sparkles, FolderOpen, ArrowRight, Layers, Globe
 } from "lucide-react";
 import { supabase } from "../core/database/supabase";
 
@@ -100,6 +100,17 @@ const APPS = [
     statTable: null,
     statLabel: "active",
     staticStat: "Live"
+  },
+  {
+    title: "Web Scraper",
+    description: "Run Maxun robots to extract data from any website and feed it to your agents.",
+    icon: Globe,
+    route: "/scraper",
+    color: "#f97316",
+    glow: "rgba(249,115,22,0.25)",
+    statTable: null,
+    statLabel: "robots",
+    staticStat: "Maxun"
   }
 ];
 
