@@ -1,39 +1,46 @@
 import { supabase } from "../core/database/supabase";
 
-async function getConfig() {
+// Supabase Edge Function URL — routes requests to Maxun server-to-server (no CORS issues)
+const PROXY_FN = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/maxun-proxy`;
+const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+async function proxyFetch(path, options = {}) {
+  const url = `${PROXY_FN}?path=${encodeURIComponent(path)}`;
+  const res = await fetch(url, {
+    method: options.method || "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${ANON_KEY}`,
+      ...options.headers,
+    },
+    body: options.body,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Maxun proxy ${res.status}: ${text || res.statusText}`);
+  }
+  return res.json();
+}
+
+// Check if Maxun is configured (non-throwing)
+export async function isMaxunConnected() {
   const { data } = await supabase
     .from("integrations")
     .select("config")
     .eq("service_key", "maxun")
     .eq("connected", true)
     .maybeSingle();
-  return data?.config || null;
-}
-
-async function apiFetch(path, options = {}) {
-  const config = await getConfig();
-  if (!config?.base_url) {
-    throw new Error("Maxun not connected. Go to Integrations → Maxun to set your URL.");
-  }
-  const base = config.base_url.replace(/\/$/, "");
-  const headers = { "Content-Type": "application/json" };
-  if (config.api_key) headers["Authorization"] = `Bearer ${config.api_key}`;
-  const res = await fetch(`${base}${path}`, { ...options, headers });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Maxun ${res.status}: ${text || res.statusText}`);
-  }
-  return res.json();
+  return !!(data?.config?.base_url);
 }
 
 // List all robots in Maxun
 export async function listRobots() {
-  return apiFetch("/api/v1/robot/getAll");
+  return proxyFetch("/api/v1/robot/getAll");
 }
 
 // Trigger a robot run
 export async function runRobot(robotId) {
-  return apiFetch("/api/v1/robot/run", {
+  return proxyFetch("/api/v1/robot/run", {
     method: "POST",
     body: JSON.stringify({ id: robotId }),
   });
@@ -42,16 +49,10 @@ export async function runRobot(robotId) {
 // List all runs (optionally filtered by robotId)
 export async function listRuns(robotId) {
   const qs = robotId ? `?robotId=${robotId}` : "";
-  return apiFetch(`/api/v1/run/getAll${qs}`);
+  return proxyFetch(`/api/v1/run/getAll${qs}`);
 }
 
 // Get a single run result
 export async function getRunResult(runId) {
-  return apiFetch(`/api/v1/run/${runId}`);
-}
-
-// Check if Maxun is configured (non-throwing)
-export async function isMaxunConnected() {
-  const config = await getConfig();
-  return !!(config?.base_url);
+  return proxyFetch(`/api/v1/run/${runId}`);
 }
