@@ -97,7 +97,7 @@ const INTEGRATIONS = [
       { name: "base_url", label: "Maxun URL (ngrok https://)", secret: false },
       { name: "api_key", label: "API Key (optional)", secret: true }
     ],
-    setupNote: "Maxun runs on localhost — expose it with: ngrok http 3000"
+    setupNote: "Maxun runs on localhost — expose it with: ngrok http 8080 (or whatever port Maxun uses)"
   }
 ];
 

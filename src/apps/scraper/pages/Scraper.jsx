@@ -254,7 +254,7 @@ export default function Scraper() {
             <span>
               You need to expose Maxun publicly (ngrok) and add the URL in Integrations.
               <br />
-              1. In your terminal: <code>ngrok http 3000</code>
+              1. In your terminal: <code>ngrok http 8080</code> (use whatever port Maxun listens on)
               <br />
               2. Copy the https:// URL ngrok gives you.
               <br />
@@ -283,7 +283,7 @@ export default function Scraper() {
         <div className="scraper-cors-note">
           <strong>CORS tip:</strong> If robots fail to load, add{" "}
           <code>CORS_ORIGIN=https://your-vercel-app.vercel.app</code> to your Maxun Docker environment,
-          or run <code>ngrok http 3000 --request-header-add "Access-Control-Allow-Origin: *"</code>
+          or run <code>ngrok http 8080 --request-header-add "Access-Control-Allow-Origin: *"</code>
         </div>
       )}
 
@@ -335,7 +335,7 @@ export default function Scraper() {
           </div>
           <div className="scraper-about-item">
             <strong>Localhost setup</strong>
-            <p>Since Maxun runs on localhost and Nexus Prime is on Vercel, you need a tunnel. Install ngrok and run <code>ngrok http 3000</code>, then paste the URL in Integrations.</p>
+            <p>Since Maxun runs on localhost and Nexus Prime is on Vercel, you need a tunnel. Install ngrok and run <code>ngrok http 8080</code>, then paste the URL in Integrations.</p>
           </div>
           <div className="scraper-about-item">
             <strong>Workflow integration</strong>
