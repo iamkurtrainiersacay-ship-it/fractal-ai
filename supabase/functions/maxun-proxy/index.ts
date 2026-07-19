@@ -103,8 +103,9 @@ serve(async (req) => {
 
   const body = req.method === "POST" ? await req.text() : undefined;
 
+  const isExecute = requestedPath.includes("/execute");
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15_000);
+  const timer = setTimeout(() => controller.abort(), isExecute ? 120_000 : 30_000);
 
   try {
     const maxunRes = await fetch(maxunUrl, {

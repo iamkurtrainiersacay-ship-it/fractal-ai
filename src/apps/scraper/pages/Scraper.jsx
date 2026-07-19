@@ -21,9 +21,10 @@ function StatusIcon({ status }) {
 
 function RunResult({ run, onSaveToKnowledge }) {
   const [expanded, setExpanded] = useState(false);
-  const data = run.capturedData || run.data || run.result || null;
+  const data = run.serializableOutput || run.capturedData || run.data || run.result || null;
   const dataStr = data ? (typeof data === "string" ? data : JSON.stringify(data, null, 2)) : null;
   const status = run.status || "unknown";
+  const runDisplayId = run.runId || run.id;
 
   return (
     <motion.div
@@ -34,11 +35,11 @@ function RunResult({ run, onSaveToKnowledge }) {
     >
       <div className="scraper-run-header" onClick={() => dataStr && setExpanded(!expanded)}>
         <StatusIcon status={status} />
-        <span className="scraper-run-id">Run #{(run.id || "").toString().slice(-6)}</span>
+        <span className="scraper-run-id">Run #{(runDisplayId || "").toString().slice(-6)}</span>
         <span className="scraper-run-status">{status}</span>
         <span className="scraper-run-time">
-          {run.createdAt || run.created_at
-            ? new Date(run.createdAt || run.created_at).toLocaleString()
+          {run.startedAt || run.createdAt || run.created_at
+            ? new Date(run.startedAt || run.createdAt || run.created_at).toLocaleString()
             : "—"}
         </span>
         {dataStr && (
@@ -77,11 +78,16 @@ function RobotCard({ robot, onRun, running }) {
   const [loadingRuns, setLoadingRuns] = useState(false);
   const [showRuns, setShowRuns] = useState(false);
 
+  // Maxun stores the "public" robot ID inside recording_meta.id (different from the DB primary key)
+  const robotId = robot.recording_meta?.id || robot.id;
+  const robotName = robot.recording_meta?.name || robotId;
+  const robotUrl = robot.recording_meta?.url || robot.startUrl;
+
   async function toggleRuns() {
     if (!showRuns && runs.length === 0) {
       setLoadingRuns(true);
       try {
-        const data = await listRuns(robot.id);
+        const data = await listRuns(robotId);
         setRuns(Array.isArray(data) ? data : (data?.runs || data?.data || []));
       } catch {
         setRuns([]);
@@ -93,13 +99,13 @@ function RobotCard({ robot, onRun, running }) {
   }
 
   async function saveToKnowledge(run) {
-    const data = run.capturedData || run.data || run.result;
-    const content = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    const output = run.serializableOutput || run.capturedData || run.data || run.result;
+    const content = typeof output === "string" ? output : JSON.stringify(output, null, 2);
     try {
       await createKnowledge({
-        title: `${robot.name || robot.id} — Scraped Data`,
+        title: `${robotName} — Scraped Data`,
         type: "Research",
-        content: `Source: Maxun robot "${robot.name || robot.id}"\nRun ID: ${run.id}\nDate: ${run.createdAt || run.created_at || "unknown"}\n\n${content}`,
+        content: `Source: Maxun robot "${robotName}"\nRun ID: ${run.runId || run.id}\nDate: ${run.startedAt || run.createdAt || run.created_at || "unknown"}\n\n${content}`,
         tags: ["maxun", "scraped"],
         agent_id: null
       });
@@ -109,7 +115,7 @@ function RobotCard({ robot, onRun, running }) {
     }
   }
 
-  const isRunning = running === robot.id;
+  const isRunning = running === robotId;
 
   return (
     <motion.div
@@ -123,15 +129,15 @@ function RobotCard({ robot, onRun, running }) {
           <Globe size={18} style={{ color: "#f97316" }} />
         </div>
         <div className="scraper-robot-info">
-          <strong>{robot.name || `Robot ${robot.id}`}</strong>
-          {robot.startUrl && (
+          <strong>{robotName}</strong>
+          {robotUrl && (
             <a
-              href={robot.startUrl}
+              href={robotUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="scraper-robot-url"
             >
-              {robot.startUrl.replace(/^https?:\/\//, "").slice(0, 40)}
+              {robotUrl.replace(/^https?:\/\//, "").slice(0, 40)}
               <ExternalLink size={11} />
             </a>
           )}
@@ -147,7 +153,7 @@ function RobotCard({ robot, onRun, running }) {
           <motion.button
             className="primary-btn"
             style={{ fontSize: "12px", padding: "7px 12px" }}
-            onClick={() => onRun(robot.id)}
+            onClick={() => onRun(robotId)}
             disabled={isRunning}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

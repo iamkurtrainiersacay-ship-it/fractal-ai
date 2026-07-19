@@ -33,7 +33,10 @@ async function proxyFetch(path, options = {}) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     let message = text;
-    try { message = JSON.parse(text)?.error ?? text; } catch { /* keep raw */ }
+    try {
+      const parsed = JSON.parse(text);
+      message = parsed?.message || parsed?.error || text;
+    } catch { /* keep raw */ }
     throw new Error(`Maxun ${res.status}: ${message || res.statusText}`);
   }
   return res.json();
