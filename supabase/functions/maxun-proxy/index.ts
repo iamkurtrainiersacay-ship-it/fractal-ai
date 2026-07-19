@@ -52,18 +52,19 @@ serve(async (req) => {
   // This app uses custom auth (not Supabase Auth). The signed-in user's ID is
   // sent as a custom header and verified against the app_users table.
   const userId = req.headers.get("x-nexus-user-id");
-  if (!userId || !/^[\w-]{10,}$/.test(userId)) {
-    return jsonError(401, "Authentication required.");
+  if (!userId || typeof userId !== "string" || userId.trim().length === 0) {
+    return jsonError(401, "Authentication required — no user ID provided.");
   }
 
+  // Verify this user actually exists in the system (service role bypasses RLS)
   const { data: appUser } = await supabase
     .from("app_users")
     .select("id")
-    .eq("id", userId)
+    .eq("id", userId.trim())
     .maybeSingle();
 
   if (!appUser) {
-    return jsonError(401, "Unauthorized — user not found.");
+    return jsonError(401, "Unauthorized — user not recognised.");
   }
 
   // ── 2. Validate Maxun path ───────────────────────────────────────────────────
