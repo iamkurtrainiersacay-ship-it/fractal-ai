@@ -51,21 +51,20 @@ export async function isMaxunConnected() {
 }
 
 export async function listRobots() {
-  return proxyFetch("/api/v1/robot/getAll");
+  return proxyFetch("/api/sdk/robots");
 }
 
 export async function runRobot(robotId) {
-  return proxyFetch("/api/v1/robot/run", {
+  return proxyFetch(`/api/sdk/robots/${encodeURIComponent(robotId)}/execute`, {
     method: "POST",
-    body: JSON.stringify({ id: robotId }),
+    body: JSON.stringify({}),
   });
 }
 
 export async function listRuns(robotId) {
-  const qs = robotId ? `?robotId=${encodeURIComponent(robotId)}` : "";
-  return proxyFetch(`/api/v1/run/getAll${qs}`);
+  return proxyFetch(`/api/sdk/robots/${encodeURIComponent(robotId)}/runs`);
 }
 
-export async function getRunResult(runId) {
-  return proxyFetch(`/api/v1/run/${encodeURIComponent(runId)}`);
+export async function getRunResult(robotId, runId) {
+  return proxyFetch(`/api/sdk/robots/${encodeURIComponent(robotId)}/runs/${encodeURIComponent(runId)}`);
 }

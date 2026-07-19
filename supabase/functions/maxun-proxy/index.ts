@@ -14,10 +14,12 @@ const CORS_HEADERS = {
 
 // Only these exact paths (or patterns) may be forwarded to Maxun
 const ALLOWED_PATH_PATTERNS: RegExp[] = [
-  /^\/api\/v1\/robot\/getAll$/,
-  /^\/api\/v1\/robot\/run$/,
-  /^\/api\/v1\/run\/getAll(\?robotId=[\w-]+)?$/,
-  /^\/api\/v1\/run\/[\w-]+$/,
+  /^\/api\/sdk\/robots$/,
+  /^\/api\/sdk\/robots\/[\w-]+\/execute$/,
+  /^\/api\/sdk\/robots\/[\w-]+\/runs$/,
+  /^\/api\/sdk\/robots\/[\w-]+\/runs\/[\w-]+$/,
+  /^\/api\/sdk\/robots\/[\w-]+$/,
+  /^\/api\/sdk\/status$/,
 ];
 
 function isAllowedPath(path: string): boolean {
@@ -93,10 +95,10 @@ serve(async (req) => {
   const maxunUrl = `${baseUrl.replace(/\/$/, "")}${requestedPath}`;
   const upstreamHeaders: Record<string, string> = {
     "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "true", // bypass ngrok browser warning page
+    "ngrok-skip-browser-warning": "true",
   };
   if (integration?.config?.api_key) {
-    upstreamHeaders["Authorization"] = `Bearer ${integration.config.api_key}`;
+    upstreamHeaders["x-api-key"] = integration.config.api_key;
   }
 
   const body = req.method === "POST" ? await req.text() : undefined;
